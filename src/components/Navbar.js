@@ -46,7 +46,7 @@ export default function Navbar() {
       <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
         <Link href="/" className="flex-shrink-0 mr-1">
           <div className="flex flex-col leading-none">
-            <span className="font-serif italic text-2xl tracking-tight" style={{ color: 'var(--ink)' }}>Bvento</span>
+            <span className="font-logo text-2xl tracking-tight" style={{ color: 'var(--ink)' }}>Bvento</span>
             <span className="text-[10px] uppercase tracking-[0.18em] hidden sm:block mt-0.5" style={{ color: 'var(--ink-soft)' }}>A Better Way to Trade Up</span>
           </div>
         </Link>

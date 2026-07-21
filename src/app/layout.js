@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif, Fraunces } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
@@ -19,6 +19,13 @@ const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
   style: ["normal", "italic"],
+});
+
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  style: ["normal"],
 });
 
 export const metadata = {
@@ -42,7 +49,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" style={{ backgroundColor: 'var(--background)' }}>
         <AutoResponder />
@@ -51,7 +58,7 @@ export default function RootLayout({ children }) {
         <BottomNav />
         <footer className="hidden sm:block border-t mt-12 py-10" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
           <div className="max-w-6xl mx-auto px-4 text-center">
-            <div className="font-serif text-2xl mb-1" style={{ color: 'var(--ink)' }}>Bvento</div>
+            <div className="font-logo text-2xl mb-1" style={{ color: 'var(--ink)' }}>Bvento</div>
             <div className="text-xs uppercase tracking-[0.2em]" style={{ color: 'var(--ink-soft)' }}>A Better Way to Trade Up</div>
             <div className="text-xs mt-3" style={{ color: 'var(--ink-soft)', opacity: 0.6 }}>© 2026 Bvento</div>
           </div>

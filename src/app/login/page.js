@@ -40,7 +40,7 @@ export default function LoginPage() {
     <div className="min-h-[70vh] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="font-serif italic text-4xl mb-1" style={{ color: 'var(--ink)' }}>Bvento</div>
+          <div className="font-logo text-4xl mb-1" style={{ color: 'var(--ink)' }}>Bvento</div>
           <div className="text-[11px] uppercase tracking-[0.18em]" style={{ color: 'var(--ink-soft)' }}>A Better Way to Trade Up</div>
         </div>
 
