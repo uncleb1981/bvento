@@ -48,10 +48,11 @@ export default function DiscoverPage() {
   if (!ready) return null;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-black" style={{ color: 'var(--brand-dark)' }}>Discover bikes near you</h1>
-        <p className="text-sm text-gray-500 mt-1">Swipe right to propose a trade, left to pass.</p>
+    <div className="max-w-5xl mx-auto px-4 py-10">
+      <div className="text-center mb-8">
+        <p className="text-xs uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--accent)' }}>Curated listings, nearby</p>
+        <h1 className="font-serif text-4xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Discover bikes worth trading for</h1>
+        <p className="text-sm mt-3" style={{ color: 'var(--ink-soft)' }}>Swipe right to propose a trade, left to pass.</p>
       </div>
       <SwipeDeck bikes={bikes} myBikes={myBikes} onPass={handlePass} onPropose={handlePropose} />
     </div>

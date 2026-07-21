@@ -11,17 +11,26 @@ export const BIKE_TYPES = [
 
 export const CONDITIONS = ['New', 'Like New', 'Good', 'Fair'];
 
-// Gradient + emoji per bike type, used for card art since listings don't have real photo uploads yet
-export const TYPE_STYLE = {
-  Road: { gradient: 'linear-gradient(135deg, #FF6B35, #F72585)', emoji: '🚴' },
-  Mountain: { gradient: 'linear-gradient(135deg, #2B7A78, #17252A)', emoji: '⛰️' },
-  Gravel: { gradient: 'linear-gradient(135deg, #B08968, #7F5539)', emoji: '🚵' },
-  Commuter: { gradient: 'linear-gradient(135deg, #3A86FF, #0B3D91)', emoji: '🚲' },
-  BMX: { gradient: 'linear-gradient(135deg, #FFB703, #FB5607)', emoji: '🤸' },
-  'E-Bike': { gradient: 'linear-gradient(135deg, #06D6A0, #118AB2)', emoji: '⚡' },
-  Kids: { gradient: 'linear-gradient(135deg, #FF70A6, #FF9770)', emoji: '🧒' },
-  Cruiser: { gradient: 'linear-gradient(135deg, #8338EC, #3A0CA3)', emoji: '🌴' },
+function unsplash(id) {
+  return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`;
+}
+
+// One representative photo per type, used as a fallback when a listing has no photo of its own
+// (e.g. freshly posted bikes, which don't have photo upload wired up yet).
+export const TYPE_PHOTO = {
+  Road: unsplash('1532298229144-0ec0c57515c7'),
+  Mountain: unsplash('1534146789009-76ed5060ec70'),
+  Gravel: unsplash('1599912925091-0929608dc5b0'),
+  Commuter: unsplash('1613773038029-2dd0cdb924aa'),
+  BMX: unsplash('1601332053592-13e8ce5ea88a'),
+  'E-Bike': unsplash('1558978806-73073843b15e'),
+  Kids: unsplash('1583124688426-3128aec007f8'),
+  Cruiser: unsplash('1774722396639-a0a6fed00deb'),
 };
+
+export function photoForBike(bike) {
+  return bike?.photo || TYPE_PHOTO[bike?.type] || TYPE_PHOTO.Road;
+}
 
 export const MOCK_USER = {
   id: 'user-1',
@@ -42,6 +51,7 @@ export const MOCK_MY_BIKES = [
     estimatedValue: 550,
     description: '2022 hardtail, upgraded tires, minor scratches on the frame.',
     city: 'Bentonville, AR',
+    photo: unsplash('1506316940527-4d1c138978a0'),
     createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
@@ -58,6 +68,7 @@ export const MOCK_BIKES = [
     estimatedValue: 900,
     description: 'Aluminum road frame, Shimano 105 groupset, ridden less than 500 miles.',
     city: 'Rogers, AR',
+    photo: unsplash('1532298229144-0ec0c57515c7'),
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -70,6 +81,7 @@ export const MOCK_BIKES = [
     estimatedValue: 1100,
     description: '750W motor, extended battery, rear rack included. Great commuter.',
     city: 'Fayetteville, AR',
+    photo: unsplash('1558978806-73073843b15e'),
     createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -82,6 +94,7 @@ export const MOCK_BIKES = [
     estimatedValue: 180,
     description: 'Freestyle BMX, some scuffs, pegs included. Great for beginners.',
     city: 'Springdale, AR',
+    photo: unsplash('1601332053592-13e8ce5ea88a'),
     createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -94,6 +107,7 @@ export const MOCK_BIKES = [
     estimatedValue: 1250,
     description: 'Steel gravel frame, tubeless-ready wheels, bar bag included.',
     city: 'Bentonville, AR',
+    photo: unsplash('1599912925091-0929608dc5b0'),
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -106,6 +120,7 @@ export const MOCK_BIKES = [
     estimatedValue: 420,
     description: 'Classic beach cruiser, 7-speed, comfy saddle, basket included.',
     city: 'Rogers, AR',
+    photo: unsplash('1774722396639-a0a6fed00deb'),
     createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -118,6 +133,7 @@ export const MOCK_BIKES = [
     estimatedValue: 1600,
     description: 'Belt drive, internal gear hub, zero maintenance commuter. Barely used.',
     city: 'Fayetteville, AR',
+    photo: unsplash('1613773038029-2dd0cdb924aa'),
     createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -130,6 +146,7 @@ export const MOCK_BIKES = [
     estimatedValue: 260,
     description: 'Lightweight kids bike, ages 6-8, hand brakes, well maintained.',
     city: 'Bentonville, AR',
+    photo: unsplash('1583124688426-3128aec007f8'),
     createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -142,6 +159,7 @@ export const MOCK_BIKES = [
     estimatedValue: 1850,
     description: 'Steel hardtail, dropper post, upgraded fork. Ready to ride.',
     city: 'Springdale, AR',
+    photo: unsplash('1534146789009-76ed5060ec70'),
     createdAt: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
   },
 ];

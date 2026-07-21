@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BIKE_TYPES, CONDITIONS, TYPE_STYLE } from '@/lib/mockData';
+import { BIKE_TYPES, CONDITIONS, TYPE_PHOTO } from '@/lib/mockData';
 import { addMyBike, getUser } from '@/lib/store';
 
 export default function CreateBikePage() {
@@ -34,58 +34,60 @@ export default function CreateBikePage() {
       estimatedValue: Number(form.estimatedValue),
       description: form.description.trim(),
       city: form.city.trim() || user.city,
+      photo: TYPE_PHOTO[form.type],
       createdAt: new Date().toISOString(),
     });
 
     router.push('/profile');
   }
 
-  const style = TYPE_STYLE[form.type] || TYPE_STYLE.Road;
-
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
-      <h1 className="text-2xl font-black mb-1" style={{ color: 'var(--brand-dark)' }}>Post a bike</h1>
-      <p className="text-sm text-gray-500 mb-6">List your bike so other riders can swipe on it.</p>
+    <div className="max-w-lg mx-auto px-4 py-10">
+      <h1 className="font-serif text-4xl mb-1" style={{ color: 'var(--ink)' }}>Post a bike</h1>
+      <p className="text-sm mb-6" style={{ color: 'var(--ink-soft)' }}>List your bike so other riders can swipe on it.</p>
 
-      <div
-        className="rounded-2xl p-6 mb-6 text-white text-center"
-        style={{ background: style.gradient }}
-      >
-        <div className="text-5xl mb-1">{style.emoji}</div>
-        <div className="font-black text-lg">{form.title || 'Your bike title'}</div>
-        <div className="text-sm text-white/85">{form.type} · {form.condition}</div>
-        {form.estimatedValue && <div className="font-black mt-1">${Number(form.estimatedValue).toLocaleString()}</div>}
+      <div className="relative h-48 mb-6 overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+        <img src={TYPE_PHOTO[form.type]} alt={form.type} className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 flex flex-col justify-end p-5 text-white" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.85), transparent 55%)' }}>
+          <div className="font-serif text-2xl">{form.title || 'Your bike title'}</div>
+          <div className="text-sm text-white/80">{form.type} · {form.condition}</div>
+          {form.estimatedValue && <div className="font-serif text-xl mt-1">${Number(form.estimatedValue).toLocaleString()}</div>}
+        </div>
       </div>
+      <p className="text-xs mb-6" style={{ color: 'var(--ink-soft)' }}>Photo shown is a placeholder by bike type — photo uploads aren&apos;t wired up yet.</p>
 
-      <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-2xl p-6 border border-gray-100">
+      <form onSubmit={handleSubmit} className="space-y-5 p-6" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+          <label className="block text-xs uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--ink-soft)' }}>Title</label>
           <input
             required
             value={form.title}
             onChange={(e) => update('title', e.target.value)}
             placeholder="e.g. Trek Marlin 7"
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm"
+            className="w-full px-4 py-2.5 text-sm"
+            style={{ border: '1px solid var(--border)' }}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Type</label>
+            <label className="block text-xs uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--ink-soft)' }}>Type</label>
             <select
               value={form.type}
               onChange={(e) => update('type', e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm"
+              className="w-full px-3 py-2.5 text-sm"
+              style={{ border: '1px solid var(--border)' }}
             >
               {BIKE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Condition</label>
+            <label className="block text-xs uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--ink-soft)' }}>Condition</label>
             <select
               value={form.condition}
               onChange={(e) => update('condition', e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm"
+              className="w-full px-3 py-2.5 text-sm"
+              style={{ border: '1px solid var(--border)' }}
             >
               {CONDITIONS.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -93,7 +95,7 @@ export default function CreateBikePage() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Estimated value ($)</label>
+          <label className="block text-xs uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--ink-soft)' }}>Estimated value ($)</label>
           <input
             required
             type="number"
@@ -102,36 +104,39 @@ export default function CreateBikePage() {
             value={form.estimatedValue}
             onChange={(e) => update('estimatedValue', e.target.value)}
             placeholder="500"
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm"
+            className="w-full px-4 py-2.5 text-sm"
+            style={{ border: '1px solid var(--border)' }}
           />
-          <p className="text-xs text-gray-400 mt-1">Used to suggest a fair cash top-up when someone proposes a trade.</p>
+          <p className="text-xs mt-1.5" style={{ color: 'var(--ink-soft)' }}>Used to suggest a fair cash top-up when someone proposes a trade.</p>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">City</label>
+          <label className="block text-xs uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--ink-soft)' }}>City</label>
           <input
             value={form.city}
             onChange={(e) => update('city', e.target.value)}
             placeholder="e.g. Bentonville, AR"
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm"
+            className="w-full px-4 py-2.5 text-sm"
+            style={{ border: '1px solid var(--border)' }}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+          <label className="block text-xs uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--ink-soft)' }}>Description</label>
           <textarea
             value={form.description}
             onChange={(e) => update('description', e.target.value)}
             rows={3}
             placeholder="Frame size, upgrades, wear and tear..."
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm resize-none"
+            className="w-full px-4 py-2.5 text-sm resize-none"
+            style={{ border: '1px solid var(--border)' }}
           />
         </div>
 
         <button
           type="submit"
-          className="w-full py-3 rounded-xl font-bold text-white"
-          style={{ backgroundColor: 'var(--brand)' }}
+          className="w-full py-3 font-medium text-white"
+          style={{ backgroundColor: 'var(--ink)' }}
         >
           Post bike
         </button>

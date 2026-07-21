@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
@@ -14,20 +14,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+});
+
 export const metadata = {
-  title: "Bvento – Swipe. Match. Ride.",
-  description: "A Tinder-style marketplace for trading bicycles — swipe on bikes, propose a trade with cash to balance the deal, and match with local riders.",
+  title: "Bvento — A Better Way to Trade Up",
+  description: "Bvento is a marketplace for trading bicycles — browse listings, propose a trade with cash to balance the deal, and close with local riders.",
   openGraph: {
-    title: "Bvento – Swipe. Match. Ride.",
-    description: "Trade bikes with local riders. Swipe, match, and add cash to balance any deal.",
+    title: "Bvento — A Better Way to Trade Up",
+    description: "Browse bikes, propose a trade with cash to balance any gap in value, and close with local riders.",
     url: "https://bvento.com",
     siteName: "Bvento",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bvento – Swipe. Match. Ride.",
-    description: "Trade bikes with local riders. Swipe, match, and add cash to balance any deal.",
+    title: "Bvento — A Better Way to Trade Up",
+    description: "Browse bikes, propose a trade with cash to balance any gap in value, and close with local riders.",
   },
 };
 
@@ -35,18 +42,18 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" style={{ backgroundColor: 'var(--background)' }}>
         <AutoResponder />
         <Navbar />
         <main className="flex-1 pb-20 sm:pb-0">{children}</main>
         <BottomNav />
-        <footer className="hidden sm:block bg-white border-t border-gray-100 mt-12 py-10">
+        <footer className="hidden sm:block border-t mt-12 py-10" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
           <div className="max-w-6xl mx-auto px-4 text-center">
-            <div className="font-black text-lg mb-1" style={{ color: 'var(--brand-dark)' }}>Bvento</div>
-            <div className="text-sm text-gray-400">Swipe. Match. Ride.</div>
-            <div className="text-xs text-gray-300 mt-3">© 2026 Bvento</div>
+            <div className="font-serif text-2xl mb-1" style={{ color: 'var(--ink)' }}>Bvento</div>
+            <div className="text-xs uppercase tracking-[0.2em]" style={{ color: 'var(--ink-soft)' }}>A Better Way to Trade Up</div>
+            <div className="text-xs mt-3" style={{ color: 'var(--ink-soft)', opacity: 0.6 }}>© 2026 Bvento</div>
           </div>
         </footer>
       </body>

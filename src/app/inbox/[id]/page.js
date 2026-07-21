@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { TYPE_STYLE } from '@/lib/mockData';
+import { photoForBike } from '@/lib/mockData';
 import { getConversation, sendMessage, markTradeComplete, getUser, cashSummary, timeAgo } from '@/lib/store';
 
 export default function ConversationPage() {
@@ -56,42 +56,39 @@ export default function ConversationPage() {
 
   if (!conversation || !user) return null;
 
-  const myStyle = TYPE_STYLE[conversation.myBike.type] || TYPE_STYLE.Road;
-  const targetStyle = TYPE_STYLE[conversation.targetBike.type] || TYPE_STYLE.Road;
-
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col" style={{ minHeight: '75vh' }}>
-      <Link href="/inbox" className="text-sm text-gray-400 mb-3">← Back to inbox</Link>
+    <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col" style={{ minHeight: '75vh' }}>
+      <Link href="/inbox" className="text-xs uppercase tracking-[0.1em] mb-4" style={{ color: 'var(--ink-soft)' }}>← Back to inbox</Link>
 
-      <div className="bg-white rounded-2xl p-4 border border-gray-100 mb-4">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="flex-1 rounded-xl p-2 text-white text-center" style={{ background: myStyle.gradient }}>
-            <div className="text-lg">{myStyle.emoji}</div>
-            <div className="text-xs font-bold truncate">{conversation.myBike.title}</div>
+      <div className="p-5 mb-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex-1 h-24 overflow-hidden relative">
+            <img src={photoForBike(conversation.myBike)} alt={conversation.myBike.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 flex items-end p-2 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{conversation.myBike.title}</div>
           </div>
-          <div className="text-lg">⇄</div>
-          <div className="flex-1 rounded-xl p-2 text-white text-center" style={{ background: targetStyle.gradient }}>
-            <div className="text-lg">{targetStyle.emoji}</div>
-            <div className="text-xs font-bold truncate">{conversation.targetBike.title}</div>
+          <div className="font-serif italic text-xl" style={{ color: 'var(--ink-soft)' }}>for</div>
+          <div className="flex-1 h-24 overflow-hidden relative">
+            <img src={photoForBike(conversation.targetBike)} alt={conversation.targetBike.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 flex items-end p-2 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{conversation.targetBike.title}</div>
           </div>
         </div>
-        <p className="text-sm text-gray-500 text-center">
-          Trading with <strong>{conversation.otherUser.name}</strong>{cashSummary(conversation)}
+        <p className="text-sm text-center" style={{ color: 'var(--ink-soft)' }}>
+          Trading with <strong style={{ color: 'var(--ink)' }}>{conversation.otherUser.name}</strong>{cashSummary(conversation)}
         </p>
         {conversation.tradeComplete ? (
-          <div className="text-center text-sm font-semibold text-green-600 mt-2">✓ Trade marked complete</div>
+          <div className="text-center text-sm font-medium mt-3" style={{ color: '#0F5132' }}>✓ Trade marked complete</div>
         ) : (
           <button
             onClick={handleMarkComplete}
-            className="w-full mt-3 py-2 rounded-xl text-sm font-semibold border"
-            style={{ borderColor: 'var(--brand)', color: 'var(--brand)' }}
+            className="w-full mt-3 py-2.5 text-xs uppercase tracking-[0.1em] font-medium"
+            style={{ border: '1px solid var(--ink)', color: 'var(--ink)' }}
           >
             Mark trade complete
           </button>
         )}
       </div>
 
-      <div className="flex-1 bg-white rounded-2xl border border-gray-100 p-4 overflow-y-auto space-y-3 mb-3">
+      <div className="flex-1 p-5 overflow-y-auto space-y-3 mb-3" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
         {conversation.messages.map((m) => (
           <MessageBubble key={m.id} message={m} me={user} otherUser={conversation.otherUser} />
         ))}
@@ -103,12 +100,13 @@ export default function ConversationPage() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 border border-gray-200 rounded-full px-4 py-2.5 text-sm"
+          className="flex-1 px-4 py-2.5 text-sm"
+          style={{ border: '1px solid var(--border)', backgroundColor: 'var(--surface)' }}
         />
         <button
           type="submit"
-          className="px-5 py-2.5 rounded-full font-semibold text-white text-sm"
-          style={{ backgroundColor: 'var(--brand)' }}
+          className="px-6 py-2.5 font-medium text-white text-sm"
+          style={{ backgroundColor: 'var(--ink)' }}
         >
           Send
         </button>
@@ -120,22 +118,22 @@ export default function ConversationPage() {
 function MessageBubble({ message, me, otherUser }) {
   if (message.senderId === 'system') {
     return (
-      <div className="text-center text-xs text-gray-400 py-1">{message.text}</div>
+      <div className="text-center text-xs py-1" style={{ color: 'var(--ink-soft)' }}>{message.text}</div>
     );
   }
   const isMe = message.senderId === me.id;
   return (
     <div className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
       <div
-        className="max-w-[75%] rounded-2xl px-4 py-2 text-sm"
+        className="max-w-[75%] px-4 py-2 text-sm"
         style={
           isMe
-            ? { backgroundColor: 'var(--brand)', color: 'white' }
-            : { backgroundColor: '#F3F4F6', color: '#1F2937' }
+            ? { backgroundColor: 'var(--ink)', color: 'white' }
+            : { backgroundColor: 'var(--accent-soft)', color: 'var(--ink)' }
         }
       >
         {message.text}
-        <div className={`text-[10px] mt-0.5 ${isMe ? 'text-white/70' : 'text-gray-400'}`}>
+        <div className={`text-[10px] mt-0.5 ${isMe ? 'text-white/60' : ''}`} style={!isMe ? { color: 'var(--ink-soft)' } : undefined}>
           {timeAgo(message.timestamp)}
         </div>
       </div>

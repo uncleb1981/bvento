@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { TYPE_STYLE } from '@/lib/mockData';
+import { photoForBike } from '@/lib/mockData';
 import {
   getProposals,
   getConversations,
@@ -50,19 +50,19 @@ export default function InboxPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-black mb-4" style={{ color: 'var(--brand-dark)' }}>Inbox</h1>
+    <div className="max-w-2xl mx-auto px-4 py-10">
+      <h1 className="font-serif text-4xl mb-6" style={{ color: 'var(--ink)' }}>Inbox</h1>
 
-      <div className="flex gap-2 mb-5">
+      <div className="flex gap-1 mb-6 border-b" style={{ borderColor: 'var(--border)' }}>
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className="px-4 py-2 rounded-full text-sm font-semibold"
+            className="px-4 py-2.5 text-xs uppercase tracking-[0.12em] font-medium -mb-px"
             style={
               tab === t
-                ? { backgroundColor: 'var(--brand)', color: 'white' }
-                : { backgroundColor: 'white', color: '#6B7280', border: '1px solid #F3F4F6' }
+                ? { color: 'var(--ink)', borderBottom: '2px solid var(--accent)' }
+                : { color: 'var(--ink-soft)', borderBottom: '2px solid transparent' }
             }
           >
             {t}
@@ -102,21 +102,19 @@ export default function InboxPage() {
             <Link
               key={c.id}
               href={`/inbox/${c.id}`}
-              className="flex items-center gap-3 bg-white rounded-2xl p-4 border border-gray-100 hover:border-gray-200"
+              className="flex items-center gap-4 p-4 transition-colors"
+              style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
             >
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-xl text-white flex-shrink-0"
-                style={{ background: (TYPE_STYLE[c.targetBike.type] || TYPE_STYLE.Road).gradient }}
-              >
-                {(TYPE_STYLE[c.targetBike.type] || TYPE_STYLE.Road).emoji}
+              <div className="w-14 h-14 flex-shrink-0 overflow-hidden">
+                <img src={photoForBike(c.targetBike)} alt={c.targetBike.title} className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-bold text-gray-800 truncate">{c.otherUser.name}</div>
-                <div className="text-sm text-gray-500 truncate">
+                <div className="font-semibold truncate" style={{ color: 'var(--ink)' }}>{c.otherUser.name}</div>
+                <div className="text-sm truncate" style={{ color: 'var(--ink-soft)' }}>
                   {c.myBike.title} ⇄ {c.targetBike.title}
                 </div>
               </div>
-              <div className="text-xs text-gray-400 flex-shrink-0">{timeAgo(c.lastMessageAt)}</div>
+              <div className="text-xs flex-shrink-0" style={{ color: 'var(--ink-soft)' }}>{timeAgo(c.lastMessageAt)}</div>
             </Link>
           ))}
         </div>
@@ -127,49 +125,45 @@ export default function InboxPage() {
 
 function EmptyState({ text }) {
   return (
-    <div className="text-center py-12 px-6 bg-white rounded-2xl border border-gray-100">
-      <div className="text-4xl mb-2">📭</div>
-      <p className="text-sm text-gray-500">{text}</p>
+    <div className="text-center py-14 px-6" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+      <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--ink-soft)' }}>{text}</p>
     </div>
   );
 }
 
 function ProposalCard({ proposal, onAccept, onDecline, mine = false }) {
-  const targetStyle = TYPE_STYLE[proposal.targetBike.type] || TYPE_STYLE.Road;
-  const myStyle = TYPE_STYLE[proposal.myBike.type] || TYPE_STYLE.Road;
-
   return (
-    <div className="bg-white rounded-2xl p-4 border border-gray-100">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex-1 rounded-xl p-2 text-white text-center" style={{ background: myStyle.gradient }}>
-          <div className="text-lg">{myStyle.emoji}</div>
-          <div className="text-xs font-bold truncate">{proposal.myBike.title}</div>
+    <div className="p-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex-1 h-20 overflow-hidden relative">
+          <img src={photoForBike(proposal.myBike)} alt={proposal.myBike.title} className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 flex items-end p-1.5 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{proposal.myBike.title}</div>
         </div>
-        <div className="text-lg">⇄</div>
-        <div className="flex-1 rounded-xl p-2 text-white text-center" style={{ background: targetStyle.gradient }}>
-          <div className="text-lg">{targetStyle.emoji}</div>
-          <div className="text-xs font-bold truncate">{proposal.targetBike.title}</div>
+        <div className="font-serif italic text-lg" style={{ color: 'var(--ink-soft)' }}>for</div>
+        <div className="flex-1 h-20 overflow-hidden relative">
+          <img src={photoForBike(proposal.targetBike)} alt={proposal.targetBike.title} className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 flex items-end p-1.5 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{proposal.targetBike.title}</div>
         </div>
       </div>
 
-      <p className="text-sm text-gray-600 mb-1">
+      <p className="text-sm mb-1" style={{ color: 'var(--ink)' }}>
         {mine ? `You offered ${proposal.myBike.title}` : `${proposal.fromUserName} offered ${proposal.myBike.title}`}
         {cashSummary(proposal)}
       </p>
-      {proposal.message && <p className="text-sm text-gray-400 italic mb-2">&ldquo;{proposal.message}&rdquo;</p>}
-      <div className="flex items-center justify-between mt-2">
-        <span className="text-xs text-gray-400">{timeAgo(proposal.createdAt)}</span>
+      {proposal.message && <p className="text-sm italic mb-2" style={{ color: 'var(--ink-soft)' }}>&ldquo;{proposal.message}&rdquo;</p>}
+      <div className="flex items-center justify-between mt-3">
+        <span className="text-xs" style={{ color: 'var(--ink-soft)' }}>{timeAgo(proposal.createdAt)}</span>
         {mine ? (
           <StatusBadge status={proposal.status} />
         ) : (
           <div className="flex gap-2">
-            <button onClick={onDecline} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+            <button onClick={onDecline} className="px-3 py-1.5 text-xs uppercase tracking-[0.08em] font-medium" style={{ color: 'var(--ink-soft)', border: '1px solid var(--border)' }}>
               Decline
             </button>
             <button
               onClick={onAccept}
-              className="px-3 py-1.5 rounded-full text-xs font-semibold text-white"
-              style={{ backgroundColor: 'var(--brand)' }}
+              className="px-3 py-1.5 text-xs uppercase tracking-[0.08em] font-medium text-white"
+              style={{ backgroundColor: 'var(--ink)' }}
             >
               Accept
             </button>
@@ -182,13 +176,13 @@ function ProposalCard({ proposal, onAccept, onDecline, mine = false }) {
 
 function StatusBadge({ status }) {
   const map = {
-    pending: { label: 'Pending', bg: '#FEF3C7', color: '#92400E' },
-    accepted: { label: 'Accepted', bg: '#D1FAE5', color: '#065F46' },
-    declined: { label: 'Declined', bg: '#FEE2E2', color: '#991B1B' },
+    pending: { label: 'Pending', color: '#92400E', border: '#E9CFA0' },
+    accepted: { label: 'Accepted', color: '#0F5132', border: '#B7DCC5' },
+    declined: { label: 'Declined', color: '#8A2A1F', border: '#E5BEB6' },
   };
   const s = map[status] || map.pending;
   return (
-    <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ backgroundColor: s.bg, color: s.color }}>
+    <span className="text-xs uppercase tracking-[0.08em] font-medium px-2.5 py-1" style={{ color: s.color, border: `1px solid ${s.border}` }}>
       {s.label}
     </span>
   );

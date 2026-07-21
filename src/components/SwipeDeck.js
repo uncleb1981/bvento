@@ -72,10 +72,9 @@ export default function SwipeDeck({ bikes, myBikes, onPass, onPropose }) {
         style={{ height: '65vh', maxHeight: 560, touchAction: 'pan-y' }}
       >
         {cards.length === 0 && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-            <div className="text-5xl mb-3">🎉</div>
-            <p className="text-lg font-bold text-gray-700">You're all caught up</p>
-            <p className="text-sm text-gray-400 mt-1">Check back later for more bikes, or post your own to attract offers.</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 rounded-2xl" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+            <p className="font-serif text-3xl mb-2" style={{ color: 'var(--ink)' }}>You're all caught up</p>
+            <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>Check back later for more bikes, or post your own to attract offers.</p>
           </div>
         )}
 
@@ -106,21 +105,22 @@ export default function SwipeDeck({ bikes, myBikes, onPass, onPropose }) {
       </div>
 
       {cards.length > 0 && (
-        <div className="flex items-center gap-6 mt-6">
+        <div className="flex items-center gap-6 mt-7">
           <button
             onClick={() => resolveSwipe('left')}
-            className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center text-2xl border border-gray-100 active:scale-95 transition-transform"
+            className="w-14 h-14 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--ink-soft)' }}
             aria-label="Pass"
           >
-            ✕
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path strokeLinecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
           </button>
           <button
             onClick={() => resolveSwipe('right')}
-            className="w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-2xl text-white active:scale-95 transition-transform"
-            style={{ backgroundColor: 'var(--brand)' }}
+            className="w-14 h-14 rounded-full flex items-center justify-center text-white active:scale-95 transition-transform"
+            style={{ backgroundColor: 'var(--accent)' }}
             aria-label="Trade"
           >
-            🚲
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>
           </button>
         </div>
       )}
