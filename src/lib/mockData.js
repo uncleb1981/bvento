@@ -1,0 +1,147 @@
+export const BIKE_TYPES = [
+  'Road',
+  'Mountain',
+  'Gravel',
+  'Commuter',
+  'BMX',
+  'E-Bike',
+  'Kids',
+  'Cruiser',
+];
+
+export const CONDITIONS = ['New', 'Like New', 'Good', 'Fair'];
+
+// Gradient + emoji per bike type, used for card art since listings don't have real photo uploads yet
+export const TYPE_STYLE = {
+  Road: { gradient: 'linear-gradient(135deg, #FF6B35, #F72585)', emoji: '🚴' },
+  Mountain: { gradient: 'linear-gradient(135deg, #2B7A78, #17252A)', emoji: '⛰️' },
+  Gravel: { gradient: 'linear-gradient(135deg, #B08968, #7F5539)', emoji: '🚵' },
+  Commuter: { gradient: 'linear-gradient(135deg, #3A86FF, #0B3D91)', emoji: '🚲' },
+  BMX: { gradient: 'linear-gradient(135deg, #FFB703, #FB5607)', emoji: '🤸' },
+  'E-Bike': { gradient: 'linear-gradient(135deg, #06D6A0, #118AB2)', emoji: '⚡' },
+  Kids: { gradient: 'linear-gradient(135deg, #FF70A6, #FF9770)', emoji: '🧒' },
+  Cruiser: { gradient: 'linear-gradient(135deg, #8338EC, #3A0CA3)', emoji: '🌴' },
+};
+
+export const MOCK_USER = {
+  id: 'user-1',
+  name: 'Ben Rider',
+  email: 'bwbuse@gmail.com',
+  city: 'Bentonville, AR',
+  completedTrades: 2,
+};
+
+// Bikes owned by the current user, seeded so the propose-trade flow has something to offer
+export const MOCK_MY_BIKES = [
+  {
+    id: 'my-bike-1',
+    ownerId: 'user-1',
+    title: 'Trek Marlin 7',
+    type: 'Mountain',
+    condition: 'Good',
+    estimatedValue: 550,
+    description: '2022 hardtail, upgraded tires, minor scratches on the frame.',
+    city: 'Bentonville, AR',
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+// Other riders' bikes to swipe through
+export const MOCK_BIKES = [
+  {
+    id: 'bike-1',
+    ownerId: 'user-2',
+    ownerName: 'Casey Fields',
+    title: 'Specialized Allez',
+    type: 'Road',
+    condition: 'Like New',
+    estimatedValue: 900,
+    description: 'Aluminum road frame, Shimano 105 groupset, ridden less than 500 miles.',
+    city: 'Rogers, AR',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'bike-2',
+    ownerId: 'user-3',
+    ownerName: 'Jordan Lee',
+    title: 'Rad Power RadRunner',
+    type: 'E-Bike',
+    condition: 'Good',
+    estimatedValue: 1100,
+    description: '750W motor, extended battery, rear rack included. Great commuter.',
+    city: 'Fayetteville, AR',
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'bike-3',
+    ownerId: 'user-4',
+    ownerName: 'Sam Torres',
+    title: 'Mongoose Legion L60',
+    type: 'BMX',
+    condition: 'Fair',
+    estimatedValue: 180,
+    description: 'Freestyle BMX, some scuffs, pegs included. Great for beginners.',
+    city: 'Springdale, AR',
+    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'bike-4',
+    ownerId: 'user-5',
+    ownerName: 'Riley Park',
+    title: 'Salsa Journeyman',
+    type: 'Gravel',
+    condition: 'Like New',
+    estimatedValue: 1250,
+    description: 'Steel gravel frame, tubeless-ready wheels, bar bag included.',
+    city: 'Bentonville, AR',
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'bike-5',
+    ownerId: 'user-6',
+    ownerName: 'Morgan Blake',
+    title: 'Electra Cruiser 7D',
+    type: 'Cruiser',
+    condition: 'Good',
+    estimatedValue: 420,
+    description: 'Classic beach cruiser, 7-speed, comfy saddle, basket included.',
+    city: 'Rogers, AR',
+    createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'bike-6',
+    ownerId: 'user-7',
+    ownerName: 'Avery Kim',
+    title: 'Priority Continuum',
+    type: 'Commuter',
+    condition: 'New',
+    estimatedValue: 1600,
+    description: 'Belt drive, internal gear hub, zero maintenance commuter. Barely used.',
+    city: 'Fayetteville, AR',
+    createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'bike-7',
+    ownerId: 'user-8',
+    ownerName: 'Drew Hayes',
+    title: 'Woom 4',
+    type: 'Kids',
+    condition: 'Good',
+    estimatedValue: 260,
+    description: 'Lightweight kids bike, ages 6-8, hand brakes, well maintained.',
+    city: 'Bentonville, AR',
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'bike-8',
+    ownerId: 'user-9',
+    ownerName: 'Taylor Reid',
+    title: 'Santa Cruz Chameleon',
+    type: 'Mountain',
+    condition: 'Like New',
+    estimatedValue: 1850,
+    description: 'Steel hardtail, dropper post, upgraded fork. Ready to ride.',
+    city: 'Springdale, AR',
+    createdAt: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
+  },
+];
