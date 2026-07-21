@@ -1,14 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { photoForBike } from '@/lib/mockData';
 import {
-  getProposals,
+  getReceivedProposals,
+  getSentProposals,
   getConversations,
-  getUser,
-  updateProposalStatus,
-  createConversationFromProposal,
+  getCurrentUser,
+  declineProposal,
+  acceptProposalAndMatch,
   cashSummary,
   timeAgo,
 } from '@/lib/store';
@@ -16,37 +18,69 @@ import {
 const TABS = ['Received', 'Sent', 'Matches'];
 
 export default function InboxPage() {
+  const router = useRouter();
   const [tab, setTab] = useState('Received');
   const [user, setUser] = useState(null);
-  const [proposals, setProposals] = useState([]);
+  const [ready, setReady] = useState(false);
+  const [received, setReceived] = useState([]);
+  const [sent, setSent] = useState([]);
   const [conversations, setConversations] = useState([]);
+  const [busyId, setBusyId] = useState(null);
+  const [error, setError] = useState('');
 
-  function refresh() {
-    setUser(getUser());
-    setProposals(getProposals());
-    setConversations(getConversations());
-  }
-
-  useEffect(() => {
-    refresh();
-    const poll = setInterval(refresh, 2000);
-    return () => clearInterval(poll);
+  const refresh = useCallback(async (currentUser) => {
+    const [r, s, c] = await Promise.all([
+      getReceivedProposals(currentUser.id),
+      getSentProposals(currentUser.id),
+      getConversations(currentUser.id),
+    ]);
+    setReceived(r);
+    setSent(s);
+    setConversations(c);
   }, []);
 
-  if (!user) return null;
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const currentUser = await getCurrentUser();
+      if (cancelled) return;
+      if (!currentUser) {
+        router.replace('/login?next=/inbox');
+        return;
+      }
+      setUser(currentUser);
+      await refresh(currentUser);
+      if (!cancelled) setReady(true);
+    })();
+    return () => { cancelled = true; };
+  }, [router, refresh]);
 
-  const received = proposals.filter((p) => p.toUserId === user.id && p.status === 'pending');
-  const sent = proposals.filter((p) => p.fromUserId === user.id);
+  if (!ready || !user) return null;
 
-  function handleAccept(proposal) {
-    updateProposalStatus(proposal.id, 'accepted');
-    createConversationFromProposal(proposal);
-    refresh();
+  async function handleAccept(proposal) {
+    setBusyId(proposal.id);
+    setError('');
+    try {
+      await acceptProposalAndMatch(proposal);
+      await refresh(user);
+    } catch (err) {
+      setError(err.message || 'Could not accept that offer.');
+    } finally {
+      setBusyId(null);
+    }
   }
 
-  function handleDecline(proposal) {
-    updateProposalStatus(proposal.id, 'declined');
-    refresh();
+  async function handleDecline(proposal) {
+    setBusyId(proposal.id);
+    setError('');
+    try {
+      await declineProposal(proposal.id);
+      await refresh(user);
+    } catch (err) {
+      setError(err.message || 'Could not decline that offer.');
+    } finally {
+      setBusyId(null);
+    }
   }
 
   return (
@@ -71,13 +105,21 @@ export default function InboxPage() {
         ))}
       </div>
 
+      {error && <p className="text-sm mb-4" style={{ color: '#8A2A1F' }}>{error}</p>}
+
       {tab === 'Received' && (
         <div className="space-y-3">
           {received.length === 0 && (
             <EmptyState text="No trade offers yet. When another rider proposes a trade for one of your bikes, it'll show up here." />
           )}
           {received.map((p) => (
-            <ProposalCard key={p.id} proposal={p} onAccept={() => handleAccept(p)} onDecline={() => handleDecline(p)} />
+            <ProposalCard
+              key={p.id}
+              proposal={p}
+              busy={busyId === p.id}
+              onAccept={() => handleAccept(p)}
+              onDecline={() => handleDecline(p)}
+            />
           ))}
         </div>
       )}
@@ -131,7 +173,7 @@ function EmptyState({ text }) {
   );
 }
 
-function ProposalCard({ proposal, onAccept, onDecline, mine = false }) {
+function ProposalCard({ proposal, onAccept, onDecline, mine = false, busy = false }) {
   return (
     <div className="p-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-3 mb-3">
@@ -157,15 +199,16 @@ function ProposalCard({ proposal, onAccept, onDecline, mine = false }) {
           <StatusBadge status={proposal.status} />
         ) : (
           <div className="flex gap-2">
-            <button onClick={onDecline} className="px-3 py-1.5 text-xs uppercase tracking-[0.08em] font-medium" style={{ color: 'var(--ink-soft)', border: '1px solid var(--border)' }}>
+            <button onClick={onDecline} disabled={busy} className="px-3 py-1.5 text-xs uppercase tracking-[0.08em] font-medium disabled:opacity-50" style={{ color: 'var(--ink-soft)', border: '1px solid var(--border)' }}>
               Decline
             </button>
             <button
               onClick={onAccept}
-              className="px-3 py-1.5 text-xs uppercase tracking-[0.08em] font-medium text-white"
+              disabled={busy}
+              className="px-3 py-1.5 text-xs uppercase tracking-[0.08em] font-medium text-white disabled:opacity-60"
               style={{ backgroundColor: 'var(--ink)' }}
             >
-              Accept
+              {busy ? '…' : 'Accept'}
             </button>
           </div>
         )}

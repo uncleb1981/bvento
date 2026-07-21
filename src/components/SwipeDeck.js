@@ -6,11 +6,12 @@ import ProposeTradeModal from './ProposeTradeModal';
 
 const SWIPE_THRESHOLD = 120;
 
-export default function SwipeDeck({ bikes, myBikes, onPass, onPropose }) {
+export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, onRequireAuth }) {
   const [cards, setCards] = useState(bikes);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [pendingTarget, setPendingTarget] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const startX = useRef(0);
 
   const topCard = cards[0];
@@ -48,16 +49,26 @@ export default function SwipeDeck({ bikes, myBikes, onPass, onPropose }) {
         setCards((c) => c.slice(1));
         setDragX(0);
       }, 220);
+    } else if (!authed) {
+      setDragX(0);
+      onRequireAuth();
     } else {
       setDragX(0);
       setPendingTarget(topCard);
     }
   }
 
-  function handleConfirm(offer) {
-    onPropose(pendingTarget, offer);
-    setCards((c) => c.slice(1));
-    setPendingTarget(null);
+  async function handleConfirm(offer) {
+    setSubmitting(true);
+    try {
+      await onPropose(pendingTarget, offer);
+      setCards((c) => c.slice(1));
+      setPendingTarget(null);
+    } catch (err) {
+      alert(`Couldn't send that offer: ${err.message || 'unknown error'}`);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleCancelProposal() {
@@ -129,6 +140,7 @@ export default function SwipeDeck({ bikes, myBikes, onPass, onPropose }) {
         <ProposeTradeModal
           targetBike={pendingTarget}
           myBikes={myBikes}
+          submitting={submitting}
           onCancel={handleCancelProposal}
           onConfirm={handleConfirm}
         />

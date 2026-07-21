@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { photoForBike } from '@/lib/mockData';
 import { suggestCash } from '@/lib/store';
 
-export default function ProposeTradeModal({ targetBike, myBikes, onCancel, onConfirm }) {
+export default function ProposeTradeModal({ targetBike, myBikes, submitting, onCancel, onConfirm }) {
   const [myBikeId, setMyBikeId] = useState(myBikes[0]?.id || '');
   const [cashAmount, setCashAmount] = useState(0);
   const [cashDirection, setCashDirection] = useState('even');
@@ -119,15 +119,16 @@ export default function ProposeTradeModal({ targetBike, myBikes, onCancel, onCon
         </div>
 
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-3 font-medium" style={{ color: 'var(--ink-soft)', border: '1px solid var(--border)' }}>
+          <button onClick={onCancel} disabled={submitting} className="flex-1 py-3 font-medium disabled:opacity-50" style={{ color: 'var(--ink-soft)', border: '1px solid var(--border)' }}>
             Cancel
           </button>
           <button
             onClick={() => onConfirm({ myBike, cashAmount: cashDirection === 'even' ? 0 : cashAmount, cashDirection, message })}
-            className="flex-1 py-3 font-medium text-white"
+            disabled={submitting}
+            className="flex-1 py-3 font-medium text-white disabled:opacity-60"
             style={{ backgroundColor: 'var(--ink)' }}
           >
-            Send offer
+            {submitting ? 'Sending…' : 'Send offer'}
           </button>
         </div>
       </div>

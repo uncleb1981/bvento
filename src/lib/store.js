@@ -1,182 +1,297 @@
-'use client';
+import { getSupabase } from './supabase';
 
-import { MOCK_USER, MOCK_BIKES, MOCK_MY_BIKES } from './mockData';
+// ── Current user ──────────────────────────────────────────────────────────────
 
-const USER_KEY = 'bvento_user';
-const MY_BIKES_KEY = 'bvento_my_bikes';
-const FEED_BIKES_KEY = 'bvento_feed_bikes';
-const PASSED_KEY = 'bvento_passed';
-const PROPOSALS_KEY = 'bvento_proposals';
-const CONVERSATIONS_KEY = 'bvento_conversations';
-
-function isClient() {
-  return typeof window !== 'undefined';
-}
-
-function read(key, fallback) {
-  if (!isClient()) return fallback;
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function write(key, value) {
-  if (!isClient()) return;
-  localStorage.setItem(key, JSON.stringify(value));
-}
-
-// ── User ──────────────────────────────────────────────────────────────────────
-
-export function getUser() {
-  if (!isClient()) return null;
-  const stored = read(USER_KEY, null);
-  if (stored) return stored;
-  write(USER_KEY, MOCK_USER);
-  return MOCK_USER;
+export async function getCurrentUser() {
+  const supabase = getSupabase();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+  return {
+    id: user.id,
+    email: user.email,
+    name: profile?.name || user.email?.split('@')[0] || 'Rider',
+    city: profile?.city || '',
+    completedTrades: profile?.completed_trades || 0,
+  };
 }
 
 // ── Bikes ─────────────────────────────────────────────────────────────────────
 
-export function getFeedBikes() {
-  const all = read(FEED_BIKES_KEY, null) || (write(FEED_BIKES_KEY, MOCK_BIKES), MOCK_BIKES);
-  const passed = new Set(getPassedIds());
-  return all.filter((b) => !passed.has(b.id));
+function adaptBike(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    ownerId: row.owner_id,
+    ownerName: row.profiles?.name || 'Rider',
+    title: row.title,
+    type: row.type,
+    condition: row.condition,
+    estimatedValue: Number(row.estimated_value),
+    description: row.description || '',
+    city: row.city || '',
+    photo: row.photo_url || null,
+    createdAt: row.created_at,
+  };
 }
 
+export async function getFeedBikes(currentUserId) {
+  const supabase = getSupabase();
+  let query = supabase
+    .from('bikes')
+    .select('*, profiles(name, city)')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+  if (currentUserId) query = query.neq('owner_id', currentUserId);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data || []).map(adaptBike);
+}
+
+export async function getMyBikes(userId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('bikes')
+    .select('*, profiles(name, city)')
+    .eq('owner_id', userId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data || []).map(adaptBike);
+}
+
+export async function addMyBike(userId, bike) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('bikes')
+    .insert({
+      owner_id: userId,
+      title: bike.title,
+      type: bike.type,
+      condition: bike.condition,
+      estimated_value: bike.estimatedValue,
+      description: bike.description,
+      city: bike.city,
+      photo_url: bike.photo,
+    })
+    .select('*, profiles(name, city)')
+    .single();
+  if (error) throw error;
+  return adaptBike(data);
+}
+
+// ── Passed bikes (session-only skip list, doesn't need to persist) ─────────────
+
+const PASSED_KEY = 'bvento_passed_session';
+
 export function getPassedIds() {
-  return read(PASSED_KEY, []);
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(sessionStorage.getItem(PASSED_KEY) || '[]');
+  } catch {
+    return [];
+  }
 }
 
 export function passBike(bikeId) {
+  if (typeof window === 'undefined') return;
   const passed = getPassedIds();
-  if (!passed.includes(bikeId)) write(PASSED_KEY, [...passed, bikeId]);
-}
-
-export function getMyBikes() {
-  return read(MY_BIKES_KEY, null) || (write(MY_BIKES_KEY, MOCK_MY_BIKES), MOCK_MY_BIKES);
-}
-
-export function addMyBike(bike) {
-  const bikes = getMyBikes();
-  const updated = [bike, ...bikes];
-  write(MY_BIKES_KEY, updated);
-  return bike;
-}
-
-export function findBikeById(id) {
-  return (
-    getFeedBikes().find((b) => b.id === id) ||
-    getMyBikes().find((b) => b.id === id) ||
-    read(FEED_BIKES_KEY, MOCK_BIKES).find((b) => b.id === id) ||
-    null
-  );
+  if (!passed.includes(bikeId)) sessionStorage.setItem(PASSED_KEY, JSON.stringify([...passed, bikeId]));
 }
 
 // ── Trade proposals ───────────────────────────────────────────────────────────
-// { id, fromUserId, fromUserName, toUserId, toUserName, myBike, targetBike,
-//   cashAmount, cashDirection: 'i_pay' | 'they_pay' | 'even', message, status: 'pending'|'accepted'|'declined', createdAt }
 
-export function getProposals() {
-  return read(PROPOSALS_KEY, []);
-}
-
-export function addProposal(proposal) {
-  const proposals = getProposals();
-  const updated = [proposal, ...proposals];
-  write(PROPOSALS_KEY, updated);
-  return proposal;
-}
-
-export function updateProposalStatus(id, status) {
-  const proposals = getProposals();
-  const updated = proposals.map((p) => (p.id === id ? { ...p, status } : p));
-  write(PROPOSALS_KEY, updated);
-  return updated.find((p) => p.id === id);
-}
-
-// Demo-only: since the mock feed has no second real account to reply for real,
-// proposals the current user sends carry a respondAt/willAccept so a background
-// ticker (see processDueResponses, run from a component mounted in layout.js)
-// can resolve them later — independent of which page happens to be open,
-// unlike a setTimeout scoped to the page that created the proposal.
-export function addProposalWithAutoResponse(proposal, { minDelayMs = 3000, maxDelayMs = 7000, acceptChance = 0.8 } = {}) {
-  const respondAt = Date.now() + minDelayMs + Math.random() * (maxDelayMs - minDelayMs);
-  return addProposal({ ...proposal, respondAt, willAccept: Math.random() < acceptChance });
-}
-
-export function processDueResponses() {
-  const proposals = getProposals();
-  const due = proposals.filter((p) => p.status === 'pending' && p.respondAt && p.respondAt <= Date.now());
-  due.forEach((proposal) => {
-    updateProposalStatus(proposal.id, proposal.willAccept ? 'accepted' : 'declined');
-    if (proposal.willAccept) createConversationFromProposal(proposal);
-  });
-}
-
-// ── Matches / conversations ───────────────────────────────────────────────────
-
-export function getConversations() {
-  return read(CONVERSATIONS_KEY, []);
-}
-
-export function getConversation(id) {
-  return getConversations().find((c) => c.id === id) || null;
-}
-
-export function createConversationFromProposal(proposal) {
-  const now = new Date().toISOString();
-  const me = getUser();
-  // The mock store is shared by a single browser, so "the other person" is
-  // whichever side of the proposal isn't the current user.
-  const otherUser = proposal.fromUserId === me?.id
-    ? { id: proposal.toUserId, name: proposal.toUserName }
-    : { id: proposal.fromUserId, name: proposal.fromUserName };
-  const conv = {
-    id: `conv-${proposal.id}`,
-    proposalId: proposal.id,
-    myBike: proposal.myBike,
-    targetBike: proposal.targetBike,
-    cashAmount: proposal.cashAmount,
-    cashDirection: proposal.cashDirection,
-    otherUser,
-    messages: [
-      {
-        id: `msg-${Date.now()}`,
-        senderId: 'system',
-        text: `It's a match! ${proposal.myBike.title} ⇄ ${proposal.targetBike.title}${cashSummary(proposal)}`,
-        timestamp: now,
-      },
-    ],
-    tradeComplete: false,
-    lastMessageAt: now,
+function adaptProposal(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    fromUserId: row.from_user_id,
+    fromUserName: row.from_profile?.name || 'Rider',
+    toUserId: row.to_user_id,
+    toUserName: row.to_profile?.name || 'Rider',
+    myBike: adaptBike(row.my_bike),
+    targetBike: adaptBike(row.target_bike),
+    cashAmount: Number(row.cash_amount),
+    cashDirection: row.cash_direction,
+    message: row.message,
+    status: row.status,
+    createdAt: row.created_at,
   };
-  const convs = getConversations();
-  write(CONVERSATIONS_KEY, [conv, ...convs]);
-  return conv;
 }
 
-export function sendMessage(convId, text, senderId) {
-  const convs = getConversations();
-  const now = new Date().toISOString();
-  const updated = convs.map((c) => {
-    if (c.id !== convId) return c;
-    return {
-      ...c,
-      messages: [...c.messages, { id: `msg-${Date.now()}`, senderId, text, timestamp: now }],
-      lastMessageAt: now,
-    };
+const PROPOSAL_SELECT = `
+  *,
+  my_bike:bikes!trade_proposals_my_bike_id_fkey(*),
+  target_bike:bikes!trade_proposals_target_bike_id_fkey(*),
+  from_profile:profiles!trade_proposals_from_user_id_fkey(name),
+  to_profile:profiles!trade_proposals_to_user_id_fkey(name)
+`;
+
+export async function getReceivedProposals(userId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('trade_proposals')
+    .select(PROPOSAL_SELECT)
+    .eq('to_user_id', userId)
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data || []).map(adaptProposal);
+}
+
+export async function getReceivedPendingCount(userId) {
+  const supabase = getSupabase();
+  const { count, error } = await supabase
+    .from('trade_proposals')
+    .select('id', { count: 'exact', head: true })
+    .eq('to_user_id', userId)
+    .eq('status', 'pending');
+  if (error) throw error;
+  return count || 0;
+}
+
+export async function getSentProposals(userId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('trade_proposals')
+    .select(PROPOSAL_SELECT)
+    .eq('from_user_id', userId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data || []).map(adaptProposal);
+}
+
+export async function addProposal({ fromUserId, targetBike, myBike, cashAmount, cashDirection, message }) {
+  const supabase = getSupabase();
+  const { error } = await supabase.from('trade_proposals').insert({
+    from_user_id: fromUserId,
+    to_user_id: targetBike.ownerId,
+    my_bike_id: myBike.id,
+    target_bike_id: targetBike.id,
+    cash_amount: cashAmount,
+    cash_direction: cashDirection,
+    message,
+    status: 'pending',
   });
-  write(CONVERSATIONS_KEY, updated);
-  return updated.find((c) => c.id === convId);
+  if (error) throw error;
 }
 
-export function markTradeComplete(convId) {
-  const convs = getConversations();
-  const updated = convs.map((c) => (c.id === convId ? { ...c, tradeComplete: true } : c));
-  write(CONVERSATIONS_KEY, updated);
+export async function declineProposal(proposalId) {
+  const supabase = getSupabase();
+  const { error } = await supabase.from('trade_proposals').update({ status: 'declined' }).eq('id', proposalId);
+  if (error) throw error;
+}
+
+export async function acceptProposalAndMatch(proposal) {
+  const supabase = getSupabase();
+  const { error: updateErr } = await supabase
+    .from('trade_proposals')
+    .update({ status: 'accepted' })
+    .eq('id', proposal.id);
+  if (updateErr) throw updateErr;
+
+  const { data: conv, error: convErr } = await supabase
+    .from('conversations')
+    .insert({
+      proposal_id: proposal.id,
+      user_1_id: proposal.fromUserId,
+      user_2_id: proposal.toUserId,
+      my_bike_id: proposal.myBike.id,
+      target_bike_id: proposal.targetBike.id,
+      cash_amount: proposal.cashAmount,
+      cash_direction: proposal.cashDirection,
+    })
+    .select()
+    .single();
+  if (convErr) throw convErr;
+
+  await supabase.from('messages').insert({
+    conversation_id: conv.id,
+    sender_id: null,
+    message: `It's a match! ${proposal.myBike.title} ⇄ ${proposal.targetBike.title}${cashSummary(proposal)}`,
+  });
+
+  return conv.id;
+}
+
+// ── Conversations / matches ───────────────────────────────────────────────────
+
+function adaptConversation(row, myId) {
+  const otherUser = row.user_1_id === myId
+    ? { id: row.user2?.id, name: row.user2?.name || 'Rider' }
+    : { id: row.user1?.id, name: row.user1?.name || 'Rider' };
+  return {
+    id: row.id,
+    myBike: row.user_1_id === myId ? adaptBike(row.my_bike) : adaptBike(row.target_bike),
+    targetBike: row.user_1_id === myId ? adaptBike(row.target_bike) : adaptBike(row.my_bike),
+    cashAmount: Number(row.cash_amount),
+    cashDirection: row.cash_direction,
+    otherUser,
+    tradeComplete: row.trade_complete,
+    lastMessageAt: row.last_message_at,
+  };
+}
+
+const CONVERSATION_SELECT = `
+  *,
+  my_bike:bikes!conversations_my_bike_id_fkey(*),
+  target_bike:bikes!conversations_target_bike_id_fkey(*),
+  user1:profiles!conversations_user_1_id_fkey(id, name),
+  user2:profiles!conversations_user_2_id_fkey(id, name)
+`;
+
+export async function getConversations(userId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('conversations')
+    .select(CONVERSATION_SELECT)
+    .or(`user_1_id.eq.${userId},user_2_id.eq.${userId}`)
+    .order('last_message_at', { ascending: false });
+  if (error) throw error;
+  return (data || []).map((row) => adaptConversation(row, userId));
+}
+
+export async function getConversation(id, userId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('conversations')
+    .select(CONVERSATION_SELECT)
+    .eq('id', id)
+    .single();
+  if (error) return null;
+  return adaptConversation(data, userId);
+}
+
+export async function getMessages(conversationId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data || []).map((m) => ({
+    id: m.id,
+    senderId: m.sender_id || 'system',
+    text: m.message,
+    timestamp: m.created_at,
+  }));
+}
+
+export async function sendMessage(conversationId, text, senderId) {
+  const supabase = getSupabase();
+  const { error } = await supabase.from('messages').insert({
+    conversation_id: conversationId,
+    sender_id: senderId,
+    message: text,
+  });
+  if (error) throw error;
+  await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
+}
+
+export async function markTradeComplete(conversationId) {
+  const supabase = getSupabase();
+  const { error } = await supabase.from('conversations').update({ trade_complete: true }).eq('id', conversationId);
+  if (error) throw error;
 }
 
 // ── Cash math ─────────────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getProposals, getUser } from '@/lib/store';
+import { getCurrentUser, getReceivedPendingCount } from '@/lib/store';
 
 const ICONS = {
   discover: (
@@ -32,14 +32,23 @@ export default function BottomNav() {
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
-    function refreshCount() {
-      const me = getUser();
-      const count = getProposals().filter((p) => p.toUserId === me?.id && p.status === 'pending').length;
-      setPendingCount(count);
+    let cancelled = false;
+    async function refreshCount() {
+      const me = await getCurrentUser();
+      if (cancelled) return;
+      if (!me) {
+        setPendingCount(0);
+        return;
+      }
+      try {
+        setPendingCount(await getReceivedPendingCount(me.id));
+      } catch {
+        // ignore transient count errors
+      }
     }
     refreshCount();
-    const poll = setInterval(refreshCount, 3000);
-    return () => clearInterval(poll);
+    const poll = setInterval(refreshCount, 5000);
+    return () => { cancelled = true; clearInterval(poll); };
   }, []);
 
   return (

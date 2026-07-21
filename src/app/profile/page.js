@@ -1,25 +1,58 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { photoForBike } from '@/lib/mockData';
-import { getUser, getMyBikes, getConversations } from '@/lib/store';
+import { getCurrentUser, getMyBikes, getConversations } from '@/lib/store';
 
 export default function ProfilePage() {
+  return (
+    <Suspense fallback={null}>
+      <ProfileContent />
+    </Suspense>
+  );
+}
+
+function ProfileContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const notice = searchParams.get('notice');
   const [user, setUser] = useState(null);
   const [myBikes, setMyBikes] = useState([]);
   const [matchCount, setMatchCount] = useState(0);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setUser(getUser());
-    setMyBikes(getMyBikes());
-    setMatchCount(getConversations().length);
-  }, []);
+    let cancelled = false;
+    (async () => {
+      const currentUser = await getCurrentUser();
+      if (cancelled) return;
+      if (!currentUser) {
+        router.replace('/login?next=/profile');
+        return;
+      }
+      const [bikes, conversations] = await Promise.all([
+        getMyBikes(currentUser.id),
+        getConversations(currentUser.id),
+      ]);
+      if (cancelled) return;
+      setUser(currentUser);
+      setMyBikes(bikes);
+      setMatchCount(conversations.length);
+      setReady(true);
+    })();
+    return () => { cancelled = true; };
+  }, [router]);
 
-  if (!user) return null;
+  if (!ready || !user) return null;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
+      {notice && (
+        <p className="text-sm mb-6 px-4 py-3" style={{ color: '#8A2A1F', border: '1px solid #E5BEB6' }}>{notice}</p>
+      )}
+
       <div className="p-6 mb-6 flex items-center gap-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center font-serif text-2xl text-white flex-shrink-0"
@@ -29,7 +62,7 @@ export default function ProfilePage() {
         </div>
         <div>
           <div className="font-serif text-2xl" style={{ color: 'var(--ink)' }}>{user.name}</div>
-          <div className="text-sm" style={{ color: 'var(--ink-soft)' }}>{user.city}</div>
+          <div className="text-sm" style={{ color: 'var(--ink-soft)' }}>{user.city || user.email}</div>
         </div>
       </div>
 

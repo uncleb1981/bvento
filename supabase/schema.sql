@@ -79,6 +79,10 @@ create policy "recipient can update proposal status" on trade_proposals for upda
 
 create policy "users see their own conversations" on conversations for select
   using (auth.uid() = user_1_id or auth.uid() = user_2_id);
+create policy "users create conversations they're part of" on conversations for insert
+  with check (auth.uid() = user_1_id or auth.uid() = user_2_id);
+create policy "users update their own conversations" on conversations for update
+  using (auth.uid() = user_1_id or auth.uid() = user_2_id);
 
 create policy "users see messages in their conversations" on messages for select
   using (exists (
@@ -86,4 +90,10 @@ create policy "users see messages in their conversations" on messages for select
     where c.id = conversation_id and (c.user_1_id = auth.uid() or c.user_2_id = auth.uid())
   ));
 create policy "users send messages in their conversations" on messages for insert
-  with check (sender_id = auth.uid());
+  with check (
+    (sender_id = auth.uid() or sender_id is null)
+    and exists (
+      select 1 from conversations c
+      where c.id = conversation_id and (c.user_1_id = auth.uid() or c.user_2_id = auth.uid())
+    )
+  );

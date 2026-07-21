@@ -1,60 +1,86 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { photoForBike } from '@/lib/mockData';
-import { getConversation, sendMessage, markTradeComplete, getUser, cashSummary, timeAgo } from '@/lib/store';
+import { getConversation, getMessages, sendMessage, markTradeComplete, getCurrentUser, cashSummary, timeAgo } from '@/lib/store';
 
 export default function ConversationPage() {
   const { id } = useParams();
   const router = useRouter();
   const [conversation, setConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [user, setUser] = useState(null);
+  const [ready, setReady] = useState(false);
   const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
 
+  const refreshMessages = useCallback(async () => {
+    const msgs = await getMessages(id);
+    setMessages(msgs);
+  }, [id]);
+
   useEffect(() => {
-    setUser(getUser());
-    const conv = getConversation(id);
-    if (!conv) {
-      router.replace('/inbox');
-      return;
-    }
-    setConversation(conv);
-  }, [id, router]);
+    let cancelled = false;
+    (async () => {
+      const currentUser = await getCurrentUser();
+      if (cancelled) return;
+      if (!currentUser) {
+        router.replace(`/login?next=/inbox/${id}`);
+        return;
+      }
+      const conv = await getConversation(id, currentUser.id);
+      if (cancelled) return;
+      if (!conv) {
+        router.replace('/inbox');
+        return;
+      }
+      setUser(currentUser);
+      setConversation(conv);
+      await refreshMessages();
+      if (!cancelled) setReady(true);
+    })();
+    return () => { cancelled = true; };
+  }, [id, router, refreshMessages]);
+
+  useEffect(() => {
+    if (!ready) return;
+    const poll = setInterval(refreshMessages, 3000);
+    return () => clearInterval(poll);
+  }, [ready, refreshMessages]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversation?.messages?.length]);
+  }, [messages.length]);
 
-  function handleSend(e) {
+  async function handleSend(e) {
     e.preventDefault();
-    if (!text.trim() || !user) return;
-    const updated = sendMessage(id, text.trim(), user.id);
-    setConversation(updated);
+    if (!text.trim() || !user || sending) return;
+    setSending(true);
+    const toSend = text.trim();
     setText('');
-
-    // Demo mode: light auto-reply so the thread feels alive without a second real account
-    setTimeout(() => {
-      const replies = [
-        "Sounds good, let's figure out a time to meet up.",
-        'Works for me! Where are you located?',
-        'Awesome, looking forward to it.',
-        "I'm flexible on timing, whatever works best for you.",
-      ];
-      const reply = replies[Math.floor(Math.random() * replies.length)];
-      const withReply = sendMessage(id, reply, conversation?.otherUser?.id || 'other');
-      setConversation(withReply);
-    }, 1500 + Math.random() * 1500);
+    try {
+      await sendMessage(id, toSend, user.id);
+      await refreshMessages();
+    } catch {
+      setText(toSend);
+    } finally {
+      setSending(false);
+    }
   }
 
-  function handleMarkComplete() {
-    markTradeComplete(id);
-    setConversation((c) => ({ ...c, tradeComplete: true }));
+  async function handleMarkComplete() {
+    try {
+      await markTradeComplete(id);
+      setConversation((c) => ({ ...c, tradeComplete: true }));
+    } catch {
+      // no-op — button stays available to retry
+    }
   }
 
-  if (!conversation || !user) return null;
+  if (!ready || !conversation || !user) return null;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col" style={{ minHeight: '75vh' }}>
@@ -89,8 +115,8 @@ export default function ConversationPage() {
       </div>
 
       <div className="flex-1 p-5 overflow-y-auto space-y-3 mb-3" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
-        {conversation.messages.map((m) => (
-          <MessageBubble key={m.id} message={m} me={user} otherUser={conversation.otherUser} />
+        {messages.map((m) => (
+          <MessageBubble key={m.id} message={m} me={user} />
         ))}
         <div ref={bottomRef} />
       </div>
@@ -105,7 +131,8 @@ export default function ConversationPage() {
         />
         <button
           type="submit"
-          className="px-6 py-2.5 font-medium text-white text-sm"
+          disabled={sending}
+          className="px-6 py-2.5 font-medium text-white text-sm disabled:opacity-60"
           style={{ backgroundColor: 'var(--ink)' }}
         >
           Send
@@ -115,7 +142,7 @@ export default function ConversationPage() {
   );
 }
 
-function MessageBubble({ message, me, otherUser }) {
+function MessageBubble({ message, me }) {
   if (message.senderId === 'system') {
     return (
       <div className="text-center text-xs py-1" style={{ color: 'var(--ink-soft)' }}>{message.text}</div>

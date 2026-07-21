@@ -1,48 +1,62 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import SwipeDeck from '@/components/SwipeDeck';
 import {
   getFeedBikes,
   getMyBikes,
-  getUser,
+  getCurrentUser,
   passBike,
-  addProposalWithAutoResponse,
+  addProposal,
 } from '@/lib/store';
 
 export default function DiscoverPage() {
+  const router = useRouter();
   const [ready, setReady] = useState(false);
   const [bikes, setBikes] = useState([]);
   const [myBikes, setMyBikes] = useState([]);
   const [user, setUser] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    setBikes(getFeedBikes());
-    setMyBikes(getMyBikes());
-    setUser(getUser());
-    setReady(true);
+    let cancelled = false;
+    (async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        const feedBikes = await getFeedBikes(currentUser?.id);
+        const mine = currentUser ? await getMyBikes(currentUser.id) : [];
+        if (cancelled) return;
+        setUser(currentUser);
+        setBikes(feedBikes);
+        setMyBikes(mine);
+      } catch (err) {
+        if (!cancelled) setError(err.message || 'Failed to load bikes.');
+      } finally {
+        if (!cancelled) setReady(true);
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   function handlePass(bike) {
     passBike(bike.id);
   }
 
-  function handlePropose(targetBike, offer) {
+  async function handlePropose(targetBike, offer) {
     if (!user) return;
-    addProposalWithAutoResponse({
-      id: `proposal-${Date.now()}`,
+    await addProposal({
       fromUserId: user.id,
-      fromUserName: user.name,
-      toUserId: targetBike.ownerId,
-      toUserName: targetBike.ownerName,
-      myBike: offer.myBike,
       targetBike,
+      myBike: offer.myBike,
       cashAmount: offer.cashAmount,
       cashDirection: offer.cashDirection,
       message: offer.message,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
     });
+  }
+
+  function handleRequireAuth() {
+    router.push('/login?next=/');
   }
 
   if (!ready) return null;
@@ -52,9 +66,26 @@ export default function DiscoverPage() {
       <div className="text-center mb-8">
         <p className="text-xs uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--accent)' }}>Curated listings · Northwest Arkansas</p>
         <h1 className="font-serif text-4xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Bikes worth trading for.</h1>
-        <p className="text-sm mt-3" style={{ color: 'var(--ink-soft)' }}>Swipe right to propose a trade, left to pass.</p>
+        <p className="text-sm mt-3" style={{ color: 'var(--ink-soft)' }}>
+          {user ? 'Swipe right to propose a trade, left to pass.' : 'Sign in to propose trades — browsing is open to everyone.'}
+        </p>
       </div>
-      <SwipeDeck bikes={bikes} myBikes={myBikes} onPass={handlePass} onPropose={handlePropose} />
+      {error && <p className="text-center text-sm mb-6" style={{ color: '#8A2A1F' }}>{error}</p>}
+      {bikes.length === 0 && !error ? (
+        <div className="max-w-sm mx-auto text-center px-6 py-14" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+          <p className="font-serif text-2xl mb-2" style={{ color: 'var(--ink)' }}>No bikes posted yet</p>
+          <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>Be the first rider in Northwest Arkansas to list one.</p>
+        </div>
+      ) : (
+        <SwipeDeck
+          bikes={bikes}
+          myBikes={myBikes}
+          authed={!!user}
+          onPass={handlePass}
+          onPropose={handlePropose}
+          onRequireAuth={handleRequireAuth}
+        />
+      )}
     </div>
   );
 }

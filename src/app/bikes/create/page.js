@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { BIKE_TYPES, CONDITIONS, TYPE_PHOTO } from '@/lib/mockData';
-import { addMyBike, getUser } from '@/lib/store';
+import { addMyBike, getCurrentUser } from '@/lib/store';
 import { getSupabase } from '@/lib/supabase';
 
 export default function CreateBikePage() {
   const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [form, setForm] = useState({
     title: '',
     type: BIKE_TYPES[0],
@@ -18,8 +20,23 @@ export default function CreateBikePage() {
   });
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const currentUser = await getCurrentUser();
+      if (cancelled) return;
+      if (!currentUser) {
+        router.replace('/login?next=/bikes/create');
+        return;
+      }
+      setUser(currentUser);
+      setCheckingAuth(false);
+    })();
+    return () => { cancelled = true; };
+  }, [router]);
 
   useEffect(() => {
     if (!photoFile) return;
@@ -35,7 +52,7 @@ export default function CreateBikePage() {
   function handlePhotoChange(e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadError('');
+    setSubmitError('');
     setPhotoFile(file);
   }
 
@@ -51,55 +68,43 @@ export default function CreateBikePage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const user = getUser();
-    if (!form.title.trim() || !form.estimatedValue) return;
+    if (!form.title.trim() || !form.estimatedValue || !user) return;
 
+    setSubmitting(true);
+    setSubmitError('');
     let photo = TYPE_PHOTO[form.type];
+    let photoWarning = '';
+
     if (photoFile) {
-      setUploading(true);
-      setUploadError('');
       try {
         photo = await uploadPhoto(user.id);
       } catch (err) {
-        setUploading(false);
-        setUploadError(err.message?.includes('Bucket not found')
+        photoWarning = err.message?.includes('Bucket not found')
           ? 'Photo storage isn’t set up yet — posted with a placeholder photo instead.'
-          : `Photo upload failed (${err.message || 'unknown error'}) — posted with a placeholder photo instead.`);
-        addMyBike({
-          id: `my-bike-${Date.now()}`,
-          ownerId: user.id,
-          title: form.title.trim(),
-          type: form.type,
-          condition: form.condition,
-          estimatedValue: Number(form.estimatedValue),
-          description: form.description.trim(),
-          city: form.city.trim() || user.city,
-          photo: TYPE_PHOTO[form.type],
-          createdAt: new Date().toISOString(),
-        });
-        router.push('/profile');
-        return;
+          : `Photo upload failed (${err.message || 'unknown error'}) — posted with a placeholder photo instead.`;
       }
-      setUploading(false);
     }
 
-    addMyBike({
-      id: `my-bike-${Date.now()}`,
-      ownerId: user.id,
-      title: form.title.trim(),
-      type: form.type,
-      condition: form.condition,
-      estimatedValue: Number(form.estimatedValue),
-      description: form.description.trim(),
-      city: form.city.trim() || user.city,
-      photo,
-      createdAt: new Date().toISOString(),
-    });
-
-    router.push('/profile');
+    try {
+      await addMyBike(user.id, {
+        title: form.title.trim(),
+        type: form.type,
+        condition: form.condition,
+        estimatedValue: Number(form.estimatedValue),
+        description: form.description.trim(),
+        city: form.city.trim() || user.city,
+        photo,
+      });
+      router.push(photoWarning ? `/profile?notice=${encodeURIComponent(photoWarning)}` : '/profile');
+    } catch (err) {
+      setSubmitError(err.message || 'Something went wrong posting your bike.');
+      setSubmitting(false);
+    }
   }
 
   const previewPhoto = photoPreview || TYPE_PHOTO[form.type];
+
+  if (checkingAuth) return null;
 
   return (
     <div className="max-w-lg mx-auto px-4 py-10">
@@ -122,8 +127,8 @@ export default function CreateBikePage() {
         </span>
         <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
       </label>
-      {uploadError && <p className="text-xs -mt-4 mb-6" style={{ color: '#8A2A1F' }}>{uploadError}</p>}
-      {!photoFile && !uploadError && <p className="text-xs -mt-4 mb-6" style={{ color: 'var(--ink-soft)' }}>No photo yet — showing a placeholder for {form.type} bikes.</p>}
+      {!photoFile && <p className="text-xs -mt-4 mb-6" style={{ color: 'var(--ink-soft)' }}>No photo yet — showing a placeholder for {form.type} bikes.</p>}
+      {photoFile && <p className="text-xs -mt-4 mb-6" style={{ color: 'var(--ink-soft)' }}>{photoFile.name}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-5 p-6" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
         <div>
@@ -202,13 +207,15 @@ export default function CreateBikePage() {
           />
         </div>
 
+        {submitError && <p className="text-sm" style={{ color: '#8A2A1F' }}>{submitError}</p>}
+
         <button
           type="submit"
-          disabled={uploading}
+          disabled={submitting}
           className="w-full py-3 font-medium text-white disabled:opacity-60"
           style={{ backgroundColor: 'var(--ink)' }}
         >
-          {uploading ? 'Uploading photo…' : 'Post bike'}
+          {submitting ? 'Posting…' : 'Post bike'}
         </button>
       </form>
     </div>

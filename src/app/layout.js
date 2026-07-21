@@ -2,7 +2,6 @@ import { Geist, Geist_Mono, Instrument_Serif, Fraunces } from "next/font/google"
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
-import AutoResponder from "@/components/AutoResponder";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,7 +51,6 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" style={{ backgroundColor: 'var(--background)' }}>
-        <AutoResponder />
         <Navbar />
         <main className="flex-1 pb-20 sm:pb-0">{children}</main>
         <BottomNav />

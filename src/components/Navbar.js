@@ -1,32 +1,46 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
-import { getProposals, getUser } from '@/lib/store';
+import { getReceivedPendingCount } from '@/lib/store';
 
 export default function Navbar() {
   const router = useRouter();
   const [authUser, setAuthUser] = useState(null);
   const [pendingCount, setPendingCount] = useState(0);
+  const userIdRef = useRef(null);
 
   useEffect(() => {
     const supabase = getSupabase();
 
-    supabase.auth.getUser().then(({ data: { user } }) => setAuthUser(user));
+    async function refreshCount() {
+      const userId = userIdRef.current;
+      if (!userId) {
+        setPendingCount(0);
+        return;
+      }
+      try {
+        setPendingCount(await getReceivedPendingCount(userId));
+      } catch {
+        // ignore transient count errors
+      }
+    }
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setAuthUser(user);
+      userIdRef.current = user?.id || null;
+      refreshCount();
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuthUser(session?.user ?? null);
+      userIdRef.current = session?.user?.id || null;
+      refreshCount();
     });
 
-    function refreshCount() {
-      const me = getUser();
-      const count = getProposals().filter((p) => p.toUserId === me?.id && p.status === 'pending').length;
-      setPendingCount(count);
-    }
-    refreshCount();
-    const poll = setInterval(refreshCount, 3000);
+    const poll = setInterval(refreshCount, 5000);
 
     return () => {
       subscription.unsubscribe();
