@@ -38,8 +38,10 @@ export async function GET(request) {
           .single();
 
         if (!profile) {
+          const meta = data.user.user_metadata || {};
           const emailName = data.user.email?.split('@')[0] || 'Rider';
-          const name = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+          const fallbackName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+          const name = meta.full_name || meta.name || fallbackName;
           await supabase.from('profiles').insert({
             id: data.user.id,
             name,
