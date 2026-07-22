@@ -95,6 +95,12 @@ export async function addMyBike(userId, bike) {
   return adaptBike(data);
 }
 
+export async function deleteBike(bikeId) {
+  const supabase = getSupabase();
+  const { error } = await supabase.from('bikes').delete().eq('id', bikeId);
+  if (error) throw error;
+}
+
 // ── Passed bikes (session-only skip list, doesn't need to persist) ─────────────
 
 const PASSED_KEY = 'bvento_passed_session';
