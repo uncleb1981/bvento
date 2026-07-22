@@ -59,7 +59,10 @@ export default function Navbar() {
     <nav className="sticky top-0 z-40 border-b" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}>
       <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
         <Link href="/" className="flex-shrink-0 mr-1">
-          <span className="font-serif italic text-4xl tracking-tight" style={{ color: 'var(--ink)' }}>bvento</span>
+          <div className="flex flex-col leading-none">
+            <span className="font-serif italic text-4xl tracking-tight" style={{ color: 'var(--ink)' }}>bvento</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] mt-0.5" style={{ color: 'var(--ink-soft)' }}>bike trading</span>
+          </div>
         </Link>
 
         <div className="hidden sm:flex items-center gap-1 ml-6">

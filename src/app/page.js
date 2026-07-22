@@ -65,9 +65,9 @@ export default function DiscoverPage() {
     <div className="max-w-5xl mx-auto px-4 py-10">
       <div className="text-center mb-8">
         <p className="text-xs uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--accent)' }}>Curated listings · Northwest Arkansas</p>
-        <h1 className="font-serif text-4xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Bikes worth trading for.</h1>
+        <h1 className="font-serif text-4xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Find your next bike</h1>
         <p className="text-sm mt-3" style={{ color: 'var(--ink-soft)' }}>
-          {user ? 'Swipe left to pass, right to trade.' : 'Sign in to propose trades — browsing is open to everyone.'}
+          {user ? 'swipe left to pass, right to trade' : 'Sign in to propose trades — browsing is open to everyone.'}
         </p>
       </div>
       {error && <p className="text-center text-sm mb-6" style={{ color: '#8A2A1F' }}>{error}</p>}
