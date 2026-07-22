@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { firstNameFromUser } from '@/lib/profileName';
 
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
@@ -39,9 +38,9 @@ export async function GET(request) {
           .single();
 
         if (!profile) {
+          // name stays null until the user sets it themselves on their profile
           await supabase.from('profiles').insert({
             id: data.user.id,
-            name: firstNameFromUser(data.user),
             completed_trades: 0,
           });
         }

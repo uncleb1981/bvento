@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { photoForBike } from '@/lib/mockData';
-import { getCurrentUser, getMyBikes, getConversations, deleteBike } from '@/lib/store';
+import { getCurrentUser, getMyBikes, getConversations, deleteBike, updateProfileName } from '@/lib/store';
 
 export default function ProfilePage() {
   return (
@@ -24,6 +24,10 @@ function ProfileContent() {
   const [ready, setReady] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [deleteError, setDeleteError] = useState('');
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState('');
+  const [savingName, setSavingName] = useState(false);
+  const [nameError, setNameError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +52,27 @@ function ProfileContent() {
   }, [router]);
 
   if (!ready || !user) return null;
+
+  function startEditName() {
+    setNameInput(user.name);
+    setNameError('');
+    setEditingName(true);
+  }
+
+  async function handleSaveName(e) {
+    e.preventDefault();
+    setSavingName(true);
+    setNameError('');
+    try {
+      await updateProfileName(user.id, nameInput);
+      setUser((u) => ({ ...u, name: nameInput.trim() }));
+      setEditingName(false);
+    } catch (err) {
+      setNameError(err.message || 'Could not save your name.');
+    } finally {
+      setSavingName(false);
+    }
+  }
 
   async function handleDelete(bike) {
     if (!window.confirm(`Delete "${bike.title}"? This can't be undone.`)) return;
@@ -76,9 +101,34 @@ function ProfileContent() {
         >
           {user.name?.charAt(0) || '?'}
         </div>
-        <div>
-          <div className="font-serif text-2xl" style={{ color: 'var(--ink)' }}>{user.name}</div>
-          <div className="text-sm" style={{ color: 'var(--ink-soft)' }}>{user.city || user.email}</div>
+        <div className="flex-1">
+          {editingName ? (
+            <form onSubmit={handleSaveName} className="flex items-center gap-2">
+              <input
+                autoFocus
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                placeholder="First name"
+                className="px-3 py-1.5 text-sm"
+                style={{ border: '1px solid var(--border)' }}
+              />
+              <button type="submit" disabled={savingName} className="text-xs uppercase tracking-[0.1em] font-medium disabled:opacity-50" style={{ color: 'var(--accent)' }}>
+                {savingName ? 'Saving…' : 'Save'}
+              </button>
+              <button type="button" onClick={() => setEditingName(false)} className="text-xs uppercase tracking-[0.1em] font-medium" style={{ color: 'var(--ink-soft)' }}>
+                Cancel
+              </button>
+            </form>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="font-serif text-2xl" style={{ color: 'var(--ink)' }}>{user.name || 'Add your name'}</div>
+              <button onClick={startEditName} className="text-xs uppercase tracking-[0.1em] font-medium" style={{ color: 'var(--accent)' }}>
+                {user.name ? 'Edit' : 'Add'}
+              </button>
+            </div>
+          )}
+          {nameError && <p className="text-xs mt-1" style={{ color: '#8A2A1F' }}>{nameError}</p>}
+          <div className="text-sm mt-0.5" style={{ color: 'var(--ink-soft)' }}>{user.city || user.email}</div>
         </div>
       </div>
 

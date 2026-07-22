@@ -3,7 +3,7 @@
 
 create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  name text not null,
+  name text, -- null until the user sets it themselves on their profile
   city text,
   completed_trades int not null default 0,
   created_at timestamptz not null default now()

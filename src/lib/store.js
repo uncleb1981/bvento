@@ -1,5 +1,5 @@
 import { getSupabase } from './supabase';
-import { firstNameFromUser } from './profileName';
+import { displayName } from './profileName';
 
 // ── Current user ──────────────────────────────────────────────────────────────
 
@@ -13,10 +13,11 @@ export async function getCurrentUser() {
   if (!profile) {
     // Self-heal: the auth callback normally creates this row, but if that ever
     // fails (e.g. an RLS policy gap), create it here so the user isn't stuck
-    // with a session that can't own bikes, proposals, etc.
+    // with a session that can't own bikes, proposals, etc. Name stays unset —
+    // the user sets it themselves on their profile.
     const { data: created } = await supabase
       .from('profiles')
-      .insert({ id: user.id, name: firstNameFromUser(user), completed_trades: 0 })
+      .insert({ id: user.id, completed_trades: 0 })
       .select()
       .single();
     profile = created;
@@ -25,10 +26,16 @@ export async function getCurrentUser() {
   return {
     id: user.id,
     email: user.email,
-    name: profile?.name || user.email?.split('@')[0] || 'Rider',
+    name: profile?.name || '',
     city: profile?.city || '',
     completedTrades: profile?.completed_trades || 0,
   };
+}
+
+export async function updateProfileName(userId, name) {
+  const supabase = getSupabase();
+  const { error } = await supabase.from('profiles').update({ name: name.trim() || null }).eq('id', userId);
+  if (error) throw error;
 }
 
 // ── Bikes ─────────────────────────────────────────────────────────────────────
@@ -38,7 +45,7 @@ function adaptBike(row) {
   return {
     id: row.id,
     ownerId: row.owner_id,
-    ownerName: row.profiles?.name || 'Rider',
+    ownerName: displayName(row.profiles?.name),
     title: row.title,
     type: row.type,
     condition: row.condition,
@@ -127,9 +134,9 @@ function adaptProposal(row) {
   return {
     id: row.id,
     fromUserId: row.from_user_id,
-    fromUserName: row.from_profile?.name || 'Rider',
+    fromUserName: displayName(row.from_profile?.name),
     toUserId: row.to_user_id,
-    toUserName: row.to_profile?.name || 'Rider',
+    toUserName: displayName(row.to_profile?.name),
     myBike: adaptBike(row.my_bike),
     targetBike: adaptBike(row.target_bike),
     cashAmount: Number(row.cash_amount),
@@ -242,8 +249,8 @@ export async function acceptProposalAndMatch(proposal) {
 
 function adaptConversation(row, myId) {
   const otherUser = row.user_1_id === myId
-    ? { id: row.user2?.id, name: row.user2?.name || 'Rider' }
-    : { id: row.user1?.id, name: row.user1?.name || 'Rider' };
+    ? { id: row.user2?.id, name: displayName(row.user2?.name) }
+    : { id: row.user1?.id, name: displayName(row.user1?.name) };
   return {
     id: row.id,
     myBike: row.user_1_id === myId ? adaptBike(row.my_bike) : adaptBike(row.target_bike),
