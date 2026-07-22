@@ -44,12 +44,17 @@ export default function BikeCard({ bike, dragX = 0, dragging = false }) {
         Trade
       </div>
       <div
-        className="absolute top-4 right-6 flex items-center justify-center pointer-events-none"
-        style={{ opacity: passOpacity, transform: 'rotate(8deg)' }}
+        className="absolute top-6 right-6 flex items-center justify-center rounded-full pointer-events-none backdrop-blur-sm"
+        style={{
+          width: 96,
+          height: 96,
+          border: '4px solid #8A2A1F',
+          opacity: passOpacity,
+          transform: `rotate(8deg) scale(${0.85 + passOpacity * 0.25})`,
+        }}
       >
-        <svg width="112" height="112" viewBox="0 0 24 24" fill="none">
-          <path d="M6 6l12 12M18 6L6 18" stroke="white" strokeWidth="7" strokeLinecap="round" />
-          <path d="M6 6l12 12M18 6L6 18" stroke="#EF4444" strokeWidth="3" strokeLinecap="round" />
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8A2A1F" strokeWidth="2.25">
+          <path strokeLinecap="round" d="M7 7l10 10M17 7L7 17" />
         </svg>
       </div>
 
