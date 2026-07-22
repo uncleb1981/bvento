@@ -47,8 +47,9 @@ export default function BikeCard({ bike, dragX = 0, dragging = false }) {
         className="absolute top-4 right-6 flex items-center justify-center pointer-events-none"
         style={{ opacity: passOpacity, transform: 'rotate(8deg)' }}
       >
-        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="3">
-          <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
+        <svg width="72" height="72" viewBox="0 0 24 24" fill="none">
+          <path d="M6 6l12 12M18 6L6 18" stroke="white" strokeWidth="7" strokeLinecap="round" />
+          <path d="M6 6l12 12M18 6L6 18" stroke="#EF4444" strokeWidth="3" strokeLinecap="round" />
         </svg>
       </div>
 
