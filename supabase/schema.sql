@@ -65,6 +65,7 @@ alter table conversations enable row level security;
 alter table messages enable row level security;
 
 create policy "profiles are viewable by everyone" on profiles for select using (true);
+create policy "users create their own profile" on profiles for insert with check (auth.uid() = id);
 create policy "users manage their own profile" on profiles for update using (auth.uid() = id);
 
 create policy "bikes are viewable by everyone" on bikes for select using (true);

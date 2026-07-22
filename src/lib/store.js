@@ -6,7 +6,24 @@ export async function getCurrentUser() {
   const supabase = getSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+
+  let { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+
+  if (!profile) {
+    // Self-heal: the auth callback normally creates this row, but if that ever
+    // fails (e.g. an RLS policy gap), create it here so the user isn't stuck
+    // with a session that can't own bikes, proposals, etc.
+    const meta = user.user_metadata || {};
+    const emailName = user.email?.split('@')[0] || 'Rider';
+    const fallbackName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+    const { data: created } = await supabase
+      .from('profiles')
+      .insert({ id: user.id, name: meta.full_name || meta.name || fallbackName, completed_trades: 0 })
+      .select()
+      .single();
+    profile = created;
+  }
+
   return {
     id: user.id,
     email: user.email,

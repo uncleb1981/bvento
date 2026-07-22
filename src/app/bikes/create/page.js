@@ -132,7 +132,7 @@ export default function CreateBikePage() {
 
       <form onSubmit={handleSubmit} className="space-y-5 p-6" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
         <div>
-          <label className="block text-xs uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--ink-soft)' }}>Title</label>
+          <FieldLabel required>Title</FieldLabel>
           <input
             required
             value={form.title}
@@ -169,7 +169,7 @@ export default function CreateBikePage() {
         </div>
 
         <div>
-          <label className="block text-xs uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--ink-soft)' }}>Estimated value ($)</label>
+          <FieldLabel required>Estimated value ($)</FieldLabel>
           <input
             required
             type="number"
@@ -177,7 +177,7 @@ export default function CreateBikePage() {
             step="5"
             value={form.estimatedValue}
             onChange={(e) => update('estimatedValue', e.target.value)}
-            placeholder="500"
+            placeholder="e.g. 500"
             className="w-full px-4 py-2.5 text-sm"
             style={{ border: '1px solid var(--border)' }}
           />
@@ -219,5 +219,18 @@ export default function CreateBikePage() {
         </button>
       </form>
     </div>
+  );
+}
+
+function FieldLabel({ children, required = false }) {
+  return (
+    <label className="flex items-center gap-1.5 text-xs uppercase tracking-[0.1em] font-medium mb-1.5" style={{ color: 'var(--ink-soft)' }}>
+      {children}
+      {required && (
+        <span className="text-[10px] normal-case tracking-normal font-semibold px-1.5 py-0.5" style={{ color: 'var(--accent)', border: '1px solid var(--accent-soft)', backgroundColor: 'var(--accent-soft)' }}>
+          Required
+        </span>
+      )}
+    </label>
   );
 }
