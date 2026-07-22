@@ -46,14 +46,15 @@ export default function BikeCard({ bike, dragX = 0, dragging = false }) {
       <div
         className="absolute top-6 right-6 flex items-center justify-center rounded-full pointer-events-none backdrop-blur-sm"
         style={{
-          width: 96,
-          height: 96,
-          border: '4px solid #8A2A1F',
+          width: 128,
+          height: 128,
+          border: '5px solid #DC2626',
+          backgroundColor: 'rgba(20,23,31,0.15)',
           opacity: passOpacity,
           transform: `rotate(8deg) scale(${0.85 + passOpacity * 0.25})`,
         }}
       >
-        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8A2A1F" strokeWidth="2.25">
+        <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.5">
           <path strokeLinecap="round" d="M7 7l10 10M17 7L7 17" />
         </svg>
       </div>
