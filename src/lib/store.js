@@ -46,6 +46,7 @@ function adaptBike(row) {
     description: row.description || '',
     city: row.city || '',
     photo: row.photo_url || null,
+    isDemo: !!row.is_demo,
     createdAt: row.created_at,
   };
 }

@@ -20,6 +20,7 @@ create table if not exists bikes (
   city text,
   photo_url text,
   status text not null default 'active', -- active | traded | removed
+  is_demo boolean not null default false,
   created_at timestamptz not null default now()
 );
 

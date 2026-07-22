@@ -83,6 +83,11 @@ function ProfileContent() {
         {myBikes.map((bike) => (
           <div key={bike.id} className="overflow-hidden relative h-40" style={{ border: '1px solid var(--border)' }}>
             <img src={photoForBike(bike)} alt={bike.title} className="absolute inset-0 w-full h-full object-cover" />
+            {bike.isDemo && (
+              <div className="absolute top-2 left-2 text-[10px] font-semibold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: 'var(--accent)' }}>
+                Demo
+              </div>
+            )}
             <div className="absolute inset-0 flex flex-col justify-end p-3 text-white" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.85), transparent 60%)' }}>
               <div className="font-medium text-sm truncate">{bike.title}</div>
               <div className="text-xs text-white/75">{bike.type} · {bike.condition}</div>

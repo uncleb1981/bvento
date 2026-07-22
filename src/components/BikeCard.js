@@ -23,6 +23,15 @@ export default function BikeCard({ bike, dragX = 0, dragging = false }) {
       />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.88) 0%, rgba(14,16,20,0.15) 45%, rgba(14,16,20,0) 65%)' }} />
 
+      {bike.isDemo && (
+        <div
+          className="absolute top-6 left-1/2 -translate-x-1/2 text-[11px] font-semibold uppercase tracking-[0.14em] px-3 py-1 rounded-full text-white pointer-events-none"
+          style={{ backgroundColor: 'var(--accent)' }}
+        >
+          Demo
+        </div>
+      )}
+
       <div
         className="absolute top-6 left-6 border-2 rounded px-3 py-1 text-lg font-serif italic uppercase tracking-wider pointer-events-none backdrop-blur-sm"
         style={{ borderColor: '#EDE6D6', color: '#EDE6D6', opacity: likeOpacity, transform: 'rotate(-8deg)' }}
