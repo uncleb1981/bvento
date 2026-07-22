@@ -1,4 +1,5 @@
 import { getSupabase } from './supabase';
+import { firstNameFromUser } from './profileName';
 
 // ── Current user ──────────────────────────────────────────────────────────────
 
@@ -13,12 +14,9 @@ export async function getCurrentUser() {
     // Self-heal: the auth callback normally creates this row, but if that ever
     // fails (e.g. an RLS policy gap), create it here so the user isn't stuck
     // with a session that can't own bikes, proposals, etc.
-    const meta = user.user_metadata || {};
-    const emailName = user.email?.split('@')[0] || 'Rider';
-    const fallbackName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
     const { data: created } = await supabase
       .from('profiles')
-      .insert({ id: user.id, name: meta.full_name || meta.name || fallbackName, completed_trades: 0 })
+      .insert({ id: user.id, name: firstNameFromUser(user), completed_trades: 0 })
       .select()
       .single();
     profile = created;

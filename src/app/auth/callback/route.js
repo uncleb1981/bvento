@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { firstNameFromUser } from '@/lib/profileName';
 
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
@@ -38,13 +39,9 @@ export async function GET(request) {
           .single();
 
         if (!profile) {
-          const meta = data.user.user_metadata || {};
-          const emailName = data.user.email?.split('@')[0] || 'Rider';
-          const fallbackName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
-          const name = meta.full_name || meta.name || fallbackName;
           await supabase.from('profiles').insert({
             id: data.user.id,
-            name,
+            name: firstNameFromUser(data.user),
             completed_trades: 0,
           });
         }
