@@ -45,7 +45,7 @@ function adaptBike(row) {
   return {
     id: row.id,
     ownerId: row.owner_id,
-    ownerName: displayName(row.profiles?.name),
+    ownerName: row.poster_name?.trim() || displayName(row.profiles?.name),
     title: row.title,
     type: row.type,
     condition: row.condition,
@@ -95,6 +95,7 @@ export async function addMyBike(userId, bike) {
       description: bike.description,
       city: bike.city,
       photo_url: bike.photo,
+      poster_name: bike.posterName,
     })
     .select('*, profiles(name, city)')
     .single();
@@ -233,9 +234,12 @@ export async function acceptProposalAndMatch(proposal) {
     .single();
   if (convErr) throw convErr;
 
+  // System message is read by both participants, so always name the payer
+  // explicitly rather than using "you" (which only makes sense per-viewer).
+  const payerName = proposal.cashDirection === 'i_pay' ? proposal.fromUserName : proposal.toUserName;
   const dealDescription = proposal.myBike
-    ? `${proposal.myBike.title} ⇄ ${proposal.targetBike.title}${cashSummary(proposal)}`
-    : `Cash offer for ${proposal.targetBike.title}${cashSummary(proposal)}`;
+    ? `${proposal.myBike.title} ⇄ ${proposal.targetBike.title}${cashSummary(proposal, payerName)}`
+    : `Cash offer for ${proposal.targetBike.title}${cashSummary(proposal, payerName)}`;
   await supabase.from('messages').insert({
     conversation_id: conv.id,
     sender_id: null,
@@ -257,6 +261,8 @@ function adaptConversation(row, myId) {
     targetBike: row.user_1_id === myId ? adaptBike(row.target_bike) : adaptBike(row.my_bike),
     cashAmount: Number(row.cash_amount),
     cashDirection: row.cash_direction,
+    // conversations.user_1_id is always the original proposal's from_user_id
+    viewerIsProposer: row.user_1_id === myId,
     otherUser,
     tradeComplete: row.trade_complete,
     lastMessageAt: row.last_message_at,
@@ -337,11 +343,23 @@ export function suggestCash(myBike, targetBike) {
   return { cashAmount: Math.abs(gap), cashDirection: 'they_pay' };
 }
 
-export function cashSummary(proposal) {
-  if (!proposal.myBike) return ` — cash offer of $${proposal.cashAmount.toLocaleString()}.`;
-  if (!proposal.cashAmount || proposal.cashDirection === 'even') return ' — straight trade, no cash.';
-  if (proposal.cashDirection === 'i_pay') return ` — plus $${proposal.cashAmount} cash.`;
-  return ` — plus $${proposal.cashAmount} cash back.`;
+// cashDirection is always relative to the proposer ('i_pay' = proposer adds
+// cash, 'they_pay' = recipient adds cash). Resolves that to a display name —
+// "you" if the viewer is the one paying, otherwise the other person's name —
+// so the summary never has to rely on ambiguous "cash back" phrasing.
+export function resolvePayer(cashDirection, viewerIsProposer, otherPersonName) {
+  const proposerIsPayer = cashDirection === 'i_pay';
+  const viewerPays = proposerIsPayer === viewerIsProposer;
+  return viewerPays ? 'you' : otherPersonName;
+}
+
+export function cashSummary(deal, payerName) {
+  // Cash-only offers have no direction ambiguity — the proposer is always the
+  // payer, and that's already stated by whatever sentence wraps this, so just
+  // state the amount rather than repeating who's paying.
+  if (!deal.myBike) return ` — $${deal.cashAmount.toLocaleString()}.`;
+  if (!deal.cashAmount || deal.cashDirection === 'even') return ' — straight trade, no cash.';
+  return ` — plus $${deal.cashAmount.toLocaleString()} cash from ${payerName}.`;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

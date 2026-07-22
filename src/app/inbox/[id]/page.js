@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { photoForBike } from '@/lib/mockData';
-import { getConversation, getMessages, sendMessage, markTradeComplete, getCurrentUser, cashSummary, timeAgo } from '@/lib/store';
+import { getConversation, getMessages, sendMessage, markTradeComplete, getCurrentUser, cashSummary, resolvePayer, timeAgo } from '@/lib/store';
 
 export default function ConversationPage() {
   const { id } = useParams();
@@ -82,6 +82,8 @@ export default function ConversationPage() {
 
   if (!ready || !conversation || !user) return null;
 
+  const payerName = resolvePayer(conversation.cashDirection, conversation.viewerIsProposer, conversation.otherUser.name);
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col" style={{ minHeight: '75vh' }}>
       <Link href="/inbox" className="text-xs uppercase tracking-[0.1em] mb-4" style={{ color: 'var(--ink-soft)' }}>← Back to inbox</Link>
@@ -106,7 +108,7 @@ export default function ConversationPage() {
           </div>
         </div>
         <p className="text-sm text-center" style={{ color: 'var(--ink-soft)' }}>
-          Trading with <strong style={{ color: 'var(--ink)' }}>{conversation.otherUser.name}</strong>{cashSummary(conversation)}
+          Trading with <strong style={{ color: 'var(--ink)' }}>{conversation.otherUser.name}</strong>{cashSummary(conversation, payerName)}
         </p>
         {conversation.tradeComplete ? (
           <div className="text-center text-sm font-medium mt-3" style={{ color: '#0F5132' }}>✓ Trade marked complete</div>

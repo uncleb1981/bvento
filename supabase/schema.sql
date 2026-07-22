@@ -19,6 +19,7 @@ create table if not exists bikes (
   description text,
   city text,
   photo_url text,
+  poster_name text, -- first name the poster typed in on this specific listing
   status text not null default 'active', -- active | traded | removed
   is_demo boolean not null default false,
   created_at timestamptz not null default now()

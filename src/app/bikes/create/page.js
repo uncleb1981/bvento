@@ -11,6 +11,7 @@ export default function CreateBikePage() {
   const [user, setUser] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [form, setForm] = useState({
+    posterName: '',
     title: '',
     type: BIKE_TYPES[0],
     condition: CONDITIONS[0],
@@ -33,6 +34,7 @@ export default function CreateBikePage() {
         return;
       }
       setUser(currentUser);
+      if (currentUser.name) setForm((f) => ({ ...f, posterName: currentUser.name }));
       setCheckingAuth(false);
     })();
     return () => { cancelled = true; };
@@ -68,7 +70,7 @@ export default function CreateBikePage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.title.trim() || !form.estimatedValue || !user) return;
+    if (!form.posterName.trim() || !form.title.trim() || !form.estimatedValue || !user) return;
 
     setSubmitting(true);
     setSubmitError('');
@@ -87,6 +89,7 @@ export default function CreateBikePage() {
 
     try {
       await addMyBike(user.id, {
+        posterName: form.posterName.trim(),
         title: form.title.trim(),
         type: form.type,
         condition: form.condition,
@@ -131,6 +134,19 @@ export default function CreateBikePage() {
       {photoFile && <p className="text-xs -mt-4 mb-6" style={{ color: 'var(--ink-soft)' }}>{photoFile.name}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-5 p-6" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+        <div>
+          <FieldLabel required>Your first name</FieldLabel>
+          <input
+            required
+            value={form.posterName}
+            onChange={(e) => update('posterName', e.target.value)}
+            placeholder="e.g. Ben"
+            className="w-full px-4 py-2.5 text-sm"
+            style={{ border: '1px solid var(--border)' }}
+          />
+          <p className="text-xs mt-1.5" style={{ color: 'var(--ink-soft)' }}>Shown to other riders on this listing.</p>
+        </div>
+
         <div>
           <FieldLabel required>Title</FieldLabel>
           <input

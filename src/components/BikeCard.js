@@ -33,16 +33,23 @@ export default function BikeCard({ bike, dragX = 0, dragging = false }) {
       )}
 
       <div
-        className="absolute top-6 left-6 border-2 rounded px-3 py-1 text-lg font-serif italic uppercase tracking-wider pointer-events-none backdrop-blur-sm"
-        style={{ borderColor: '#EDE6D6', color: '#EDE6D6', opacity: likeOpacity, transform: 'rotate(-8deg)' }}
+        className="absolute top-6 left-6 border-4 rounded-lg px-4 py-1.5 text-3xl font-serif italic uppercase tracking-wider pointer-events-none backdrop-blur-sm"
+        style={{
+          borderColor: '#EDE6D6',
+          color: '#EDE6D6',
+          opacity: likeOpacity,
+          transform: `rotate(-8deg) scale(${0.85 + likeOpacity * 0.4})`,
+        }}
       >
         Trade
       </div>
       <div
-        className="absolute top-6 right-6 border-2 rounded px-3 py-1 text-lg font-serif italic uppercase tracking-wider pointer-events-none backdrop-blur-sm"
-        style={{ borderColor: '#EDE6D6', color: '#EDE6D6', opacity: passOpacity, transform: 'rotate(8deg)' }}
+        className="absolute top-4 right-6 flex items-center justify-center pointer-events-none"
+        style={{ opacity: passOpacity, transform: 'rotate(8deg)' }}
       >
-        Pass
+        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="3">
+          <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
+        </svg>
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 p-6 text-white">

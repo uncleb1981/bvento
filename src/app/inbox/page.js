@@ -12,6 +12,7 @@ import {
   declineProposal,
   acceptProposalAndMatch,
   cashSummary,
+  resolvePayer,
   timeAgo,
 } from '@/lib/store';
 
@@ -174,6 +175,8 @@ function EmptyState({ text }) {
 }
 
 function ProposalCard({ proposal, onAccept, onDecline, mine = false, busy = false }) {
+  const otherPersonName = mine ? proposal.toUserName : proposal.fromUserName;
+  const payerName = resolvePayer(proposal.cashDirection, mine, otherPersonName);
   return (
     <div className="p-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-3 mb-3">
@@ -196,7 +199,7 @@ function ProposalCard({ proposal, onAccept, onDecline, mine = false, busy = fals
         {proposal.myBike
           ? (mine ? `You offered ${proposal.myBike.title}` : `${proposal.fromUserName} offered ${proposal.myBike.title}`)
           : (mine ? 'You made a cash offer' : `${proposal.fromUserName} made a cash offer`)}
-        {cashSummary(proposal)}
+        {cashSummary(proposal, payerName)}
       </p>
       {proposal.message && <p className="text-sm italic mb-2" style={{ color: 'var(--ink-soft)' }}>&ldquo;{proposal.message}&rdquo;</p>}
       <div className="flex items-center justify-between mt-3">
