@@ -88,10 +88,17 @@ export default function ConversationPage() {
 
       <div className="p-5 mb-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
         <div className="flex items-center gap-3 mb-3">
-          <div className="flex-1 h-24 overflow-hidden relative">
-            <img src={photoForBike(conversation.myBike)} alt={conversation.myBike.title} className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 flex items-end p-2 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{conversation.myBike.title}</div>
-          </div>
+          {conversation.myBike ? (
+            <div className="flex-1 h-24 overflow-hidden relative">
+              <img src={photoForBike(conversation.myBike)} alt={conversation.myBike.title} className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 flex items-end p-2 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{conversation.myBike.title}</div>
+            </div>
+          ) : (
+            <div className="flex-1 h-24 flex flex-col items-center justify-center" style={{ backgroundColor: 'var(--accent-soft)' }}>
+              <div className="font-serif text-xl" style={{ color: 'var(--ink)' }}>${conversation.cashAmount.toLocaleString()}</div>
+              <div className="text-[10px] uppercase tracking-[0.1em]" style={{ color: 'var(--ink-soft)' }}>Cash offer</div>
+            </div>
+          )}
           <div className="font-serif italic text-xl" style={{ color: 'var(--ink-soft)' }}>for</div>
           <div className="flex-1 h-24 overflow-hidden relative">
             <img src={photoForBike(conversation.targetBike)} alt={conversation.targetBike.title} className="absolute inset-0 w-full h-full object-cover" />

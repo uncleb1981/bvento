@@ -187,7 +187,7 @@ export async function addProposal({ fromUserId, targetBike, myBike, cashAmount, 
   const { error } = await supabase.from('trade_proposals').insert({
     from_user_id: fromUserId,
     to_user_id: targetBike.ownerId,
-    my_bike_id: myBike.id,
+    my_bike_id: myBike?.id ?? null,
     target_bike_id: targetBike.id,
     cash_amount: cashAmount,
     cash_direction: cashDirection,
@@ -217,7 +217,7 @@ export async function acceptProposalAndMatch(proposal) {
       proposal_id: proposal.id,
       user_1_id: proposal.fromUserId,
       user_2_id: proposal.toUserId,
-      my_bike_id: proposal.myBike.id,
+      my_bike_id: proposal.myBike?.id ?? null,
       target_bike_id: proposal.targetBike.id,
       cash_amount: proposal.cashAmount,
       cash_direction: proposal.cashDirection,
@@ -226,10 +226,13 @@ export async function acceptProposalAndMatch(proposal) {
     .single();
   if (convErr) throw convErr;
 
+  const dealDescription = proposal.myBike
+    ? `${proposal.myBike.title} ⇄ ${proposal.targetBike.title}${cashSummary(proposal)}`
+    : `Cash offer for ${proposal.targetBike.title}${cashSummary(proposal)}`;
   await supabase.from('messages').insert({
     conversation_id: conv.id,
     sender_id: null,
-    message: `It's a match! ${proposal.myBike.title} ⇄ ${proposal.targetBike.title}${cashSummary(proposal)}`,
+    message: `It's a match! ${dealDescription}`,
   });
 
   return conv.id;
@@ -328,6 +331,7 @@ export function suggestCash(myBike, targetBike) {
 }
 
 export function cashSummary(proposal) {
+  if (!proposal.myBike) return ` — cash offer of $${proposal.cashAmount.toLocaleString()}.`;
   if (!proposal.cashAmount || proposal.cashDirection === 'even') return ' — straight trade, no cash.';
   if (proposal.cashDirection === 'i_pay') return ` — plus $${proposal.cashAmount} cash.`;
   return ` — plus $${proposal.cashAmount} cash back.`;

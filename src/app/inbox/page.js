@@ -177,10 +177,14 @@ function ProposalCard({ proposal, onAccept, onDecline, mine = false, busy = fals
   return (
     <div className="p-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-3 mb-3">
-        <div className="flex-1 h-20 overflow-hidden relative">
-          <img src={photoForBike(proposal.myBike)} alt={proposal.myBike.title} className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 flex items-end p-1.5 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{proposal.myBike.title}</div>
-        </div>
+        {proposal.myBike ? (
+          <div className="flex-1 h-20 overflow-hidden relative">
+            <img src={photoForBike(proposal.myBike)} alt={proposal.myBike.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 flex items-end p-1.5 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{proposal.myBike.title}</div>
+          </div>
+        ) : (
+          <CashOfferTile amount={proposal.cashAmount} />
+        )}
         <div className="font-serif italic text-lg" style={{ color: 'var(--ink-soft)' }}>for</div>
         <div className="flex-1 h-20 overflow-hidden relative">
           <img src={photoForBike(proposal.targetBike)} alt={proposal.targetBike.title} className="absolute inset-0 w-full h-full object-cover" />
@@ -189,7 +193,9 @@ function ProposalCard({ proposal, onAccept, onDecline, mine = false, busy = fals
       </div>
 
       <p className="text-sm mb-1" style={{ color: 'var(--ink)' }}>
-        {mine ? `You offered ${proposal.myBike.title}` : `${proposal.fromUserName} offered ${proposal.myBike.title}`}
+        {proposal.myBike
+          ? (mine ? `You offered ${proposal.myBike.title}` : `${proposal.fromUserName} offered ${proposal.myBike.title}`)
+          : (mine ? 'You made a cash offer' : `${proposal.fromUserName} made a cash offer`)}
         {cashSummary(proposal)}
       </p>
       {proposal.message && <p className="text-sm italic mb-2" style={{ color: 'var(--ink-soft)' }}>&ldquo;{proposal.message}&rdquo;</p>}
@@ -213,6 +219,15 @@ function ProposalCard({ proposal, onAccept, onDecline, mine = false, busy = fals
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function CashOfferTile({ amount }) {
+  return (
+    <div className="flex-1 h-20 flex flex-col items-center justify-center" style={{ backgroundColor: 'var(--accent-soft)' }}>
+      <div className="font-serif text-lg" style={{ color: 'var(--ink)' }}>${amount.toLocaleString()}</div>
+      <div className="text-[10px] uppercase tracking-[0.1em]" style={{ color: 'var(--ink-soft)' }}>Cash offer</div>
     </div>
   );
 }

@@ -28,7 +28,7 @@ create table if not exists trade_proposals (
   id uuid primary key default gen_random_uuid(),
   from_user_id uuid not null references profiles(id) on delete cascade,
   to_user_id uuid not null references profiles(id) on delete cascade,
-  my_bike_id uuid not null references bikes(id) on delete cascade,
+  my_bike_id uuid references bikes(id) on delete cascade, -- null = cash-only offer, no bike traded in
   target_bike_id uuid not null references bikes(id) on delete cascade,
   cash_amount numeric not null default 0,
   cash_direction text not null default 'even', -- i_pay | they_pay | even (relative to from_user)
