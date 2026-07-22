@@ -28,19 +28,21 @@ const fraunces = Fraunces({
 });
 
 export const metadata = {
-  title: "Bvento — A Better Way to Trade Up",
-  description: "Bvento is a marketplace for trading bicycles — browse listings, propose a trade with cash to balance the deal, and close with local riders.",
+  metadataBase: new URL("https://bvento.com"),
+  title: "Bvento — Bike Trading in Bentonville & Northwest Arkansas",
+  description: "Trade bikes with local riders in Bentonville, Rogers, Springdale, and Fayetteville, AR. Browse listings, propose a trade, and add cash to balance the deal.",
   openGraph: {
-    title: "Bvento — A Better Way to Trade Up",
-    description: "Browse bikes, propose a trade with cash to balance any gap in value, and close with local riders.",
+    title: "Bvento — Bike Trading in Bentonville & Northwest Arkansas",
+    description: "Trade bikes with local riders across Northwest Arkansas. Browse listings, propose a trade, and add cash to balance any gap in value.",
     url: "https://bvento.com",
     siteName: "Bvento",
     type: "website",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bvento — A Better Way to Trade Up",
-    description: "Browse bikes, propose a trade with cash to balance any gap in value, and close with local riders.",
+    title: "Bvento — Bike Trading in Bentonville & Northwest Arkansas",
+    description: "Trade bikes with local riders across Northwest Arkansas. Browse listings, propose a trade, and add cash to balance any gap in value.",
   },
 };
 
