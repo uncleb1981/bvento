@@ -67,7 +67,7 @@ export default function DiscoverPage() {
         <p className="text-xs uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--accent)' }}>Curated listings · Northwest Arkansas</p>
         <h1 className="font-serif text-4xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Bikes worth trading for.</h1>
         <p className="text-sm mt-3" style={{ color: 'var(--ink-soft)' }}>
-          {user ? 'Swipe right to propose a trade, left to pass.' : 'Sign in to propose trades — browsing is open to everyone.'}
+          {user ? 'Swipe left to pass, right to trade.' : 'Sign in to propose trades — browsing is open to everyone.'}
         </p>
       </div>
       {error && <p className="text-center text-sm mb-6" style={{ color: '#8A2A1F' }}>{error}</p>}
