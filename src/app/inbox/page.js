@@ -149,12 +149,18 @@ export default function InboxPage() {
               style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
             >
               <div className="w-14 h-14 flex-shrink-0 overflow-hidden">
-                <img src={photoForBike(c.targetBike)} alt={c.targetBike.title} className="w-full h-full object-cover" />
+                {c.targetBike ? (
+                  <img src={photoForBike(c.targetBike)} alt={c.targetBike.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: 'var(--accent-soft)' }}>
+                    <span className="text-[9px] uppercase tracking-[0.08em] text-center" style={{ color: 'var(--ink-soft)' }}>Traded</span>
+                  </div>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold truncate" style={{ color: 'var(--ink)' }}>{c.otherUser.name}</div>
                 <div className="text-sm truncate" style={{ color: 'var(--ink-soft)' }}>
-                  {c.myBike.title} ⇄ {c.targetBike.title}
+                  {c.myBike?.title || `$${c.cashAmount.toLocaleString()} cash`} ⇄ {c.targetBike?.title || 'listing removed'}
                 </div>
               </div>
               <div className="text-xs flex-shrink-0" style={{ color: 'var(--ink-soft)' }}>{timeAgo(c.lastMessageAt)}</div>

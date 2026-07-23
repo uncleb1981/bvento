@@ -326,10 +326,23 @@ export async function sendMessage(conversationId, text, senderId) {
   await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
 }
 
-export async function markTradeComplete(conversationId) {
+export async function markTradeComplete(conversationId, userId) {
   const supabase = getSupabase();
   const { error } = await supabase.from('conversations').update({ trade_complete: true }).eq('id', conversationId);
   if (error) throw error;
+
+  // conversations.target_bike_id is always the original listing this trade
+  // was proposed on. If the person completing the trade is the one who
+  // posted it, the listing has now traded — remove it so it stops showing
+  // up in the feed. (Bikes RLS also enforces this: only the owner can delete.)
+  const { data: conv } = await supabase
+    .from('conversations')
+    .select('target_bike_id, target_bike:bikes!conversations_target_bike_id_fkey(owner_id)')
+    .eq('id', conversationId)
+    .single();
+  if (conv?.target_bike_id && conv.target_bike?.owner_id === userId) {
+    await supabase.from('bikes').delete().eq('id', conv.target_bike_id);
+  }
 }
 
 // ── Cash math ─────────────────────────────────────────────────────────────────

@@ -73,8 +73,8 @@ export default function ConversationPage() {
 
   async function handleMarkComplete() {
     try {
-      await markTradeComplete(id);
-      setConversation((c) => ({ ...c, tradeComplete: true }));
+      await markTradeComplete(id, user.id);
+      setConversation((c) => ({ ...c, tradeComplete: true, targetBike: c.targetBike?.ownerId === user.id ? null : c.targetBike }));
     } catch {
       // no-op — button stays available to retry
     }
@@ -102,10 +102,17 @@ export default function ConversationPage() {
             </div>
           )}
           <div className="font-serif italic text-xl" style={{ color: 'var(--ink-soft)' }}>for</div>
-          <div className="flex-1 h-24 overflow-hidden relative">
-            <img src={photoForBike(conversation.targetBike)} alt={conversation.targetBike.title} className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 flex items-end p-2 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{conversation.targetBike.title}</div>
-          </div>
+          {conversation.targetBike ? (
+            <div className="flex-1 h-24 overflow-hidden relative">
+              <img src={photoForBike(conversation.targetBike)} alt={conversation.targetBike.title} className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 flex items-end p-2 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{conversation.targetBike.title}</div>
+            </div>
+          ) : (
+            <div className="flex-1 h-24 flex flex-col items-center justify-center text-center px-2" style={{ backgroundColor: 'var(--accent-soft)' }}>
+              <div className="text-xs font-medium" style={{ color: 'var(--ink)' }}>Listing removed</div>
+              <div className="text-[10px] uppercase tracking-[0.1em] mt-0.5" style={{ color: 'var(--ink-soft)' }}>Traded</div>
+            </div>
+          )}
         </div>
         <p className="text-sm text-center" style={{ color: 'var(--ink-soft)' }}>
           Trading with <strong style={{ color: 'var(--ink)' }}>{conversation.otherUser.name}</strong>{cashSummary(conversation, payerName)}
