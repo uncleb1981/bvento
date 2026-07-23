@@ -119,6 +119,10 @@ export default function ConversationPage() {
         </p>
         {conversation.tradeComplete ? (
           <div className="text-center text-sm font-medium mt-3" style={{ color: '#0F5132' }}>✓ Trade marked complete</div>
+        ) : conversation.viewerIsProposer ? (
+          <p className="text-center text-xs mt-3" style={{ color: 'var(--ink-soft)' }}>
+            Waiting for {conversation.otherUser.name} to mark this trade complete.
+          </p>
         ) : (
           <button
             onClick={handleMarkComplete}
