@@ -62,11 +62,10 @@ export default function DiscoverPage() {
   if (!ready) return null;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <div className="text-center mb-8">
-        <p className="text-xs uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--accent)' }}>Curated listings · Northwest Arkansas</p>
-        <h1 className="font-serif text-4xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Find your next bike</h1>
-        <p className="text-sm mt-3" style={{ color: 'var(--ink-soft)' }}>
+    <div className="max-w-5xl mx-auto px-4 py-4 sm:py-10">
+      <div className="text-center mb-4 sm:mb-8">
+        <h1 className="font-serif text-3xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Find your next bike</h1>
+        <p className="text-sm mt-1 sm:mt-3" style={{ color: 'var(--ink-soft)' }}>
           {user ? 'swipe left to pass, right to trade' : 'Sign in to propose trades — browsing is open to everyone.'}
         </p>
       </div>
