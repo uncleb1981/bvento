@@ -33,15 +33,19 @@ export default function BikeCard({ bike, dragX = 0, dragging = false }) {
       )}
 
       <div
-        className="absolute top-6 left-6 border-4 rounded-lg px-4 py-1.5 text-3xl font-serif italic uppercase tracking-wider pointer-events-none backdrop-blur-sm"
+        className="absolute top-6 left-6 flex items-center justify-center rounded-full pointer-events-none backdrop-blur-sm"
         style={{
-          borderColor: '#EDE6D6',
-          color: '#EDE6D6',
+          width: 128,
+          height: 128,
+          border: '5px solid var(--accent)',
+          backgroundColor: 'rgba(20,23,31,0.15)',
           opacity: likeOpacity,
-          transform: `rotate(-8deg) scale(${0.85 + likeOpacity * 0.4})`,
+          transform: `rotate(-8deg) scale(${0.85 + likeOpacity * 0.25})`,
         }}
       >
-        Trade
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" strokeWidth="1">
+          <path d="M12 21s-6.7-4.35-9.33-8.2C.9 10.1 1.4 6.6 4.2 4.9c2.3-1.4 4.9-.7 6.4 1.1L12 7.4l1.4-1.4c1.5-1.8 4.1-2.5 6.4-1.1 2.8 1.7 3.3 5.2 1.53 7.9C18.7 16.65 12 21 12 21z" />
+        </svg>
       </div>
       <div
         className="absolute top-6 right-6 flex items-center justify-center rounded-full pointer-events-none backdrop-blur-sm"
