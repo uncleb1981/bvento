@@ -46,6 +46,20 @@ export const metadata = {
   },
 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Bvento",
+  url: "https://bvento.com",
+  description: "Trade bikes with local riders in Bentonville, Rogers, Springdale, and Fayetteville, AR.",
+  areaServed: [
+    { "@type": "City", name: "Bentonville, AR" },
+    { "@type": "City", name: "Rogers, AR" },
+    { "@type": "City", name: "Springdale, AR" },
+    { "@type": "City", name: "Fayetteville, AR" },
+  ],
+};
+
 export default function RootLayout({ children }) {
   return (
     <html
@@ -53,6 +67,10 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" style={{ backgroundColor: 'var(--background)' }}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
         <Navbar />
         <main className="flex-1 pb-20 sm:pb-0">{children}</main>
         <BottomNav />

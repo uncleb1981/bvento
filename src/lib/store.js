@@ -40,7 +40,7 @@ export async function updateProfileName(userId, name) {
 
 // ── Bikes ─────────────────────────────────────────────────────────────────────
 
-function adaptBike(row) {
+export function adaptBike(row) {
   if (!row) return null;
   return {
     id: row.id,
