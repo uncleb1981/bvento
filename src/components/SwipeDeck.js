@@ -120,18 +120,18 @@ export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, o
           <button
             onClick={() => resolveSwipe('left')}
             className="w-14 h-14 rounded-full flex items-center justify-center active:scale-95 transition-transform"
-            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--ink-soft)' }}
+            style={{ backgroundColor: 'var(--surface)', border: '2px solid #DC2626' }}
             aria-label="Pass"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path strokeLinecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.5"><path strokeLinecap="round" d="M7 7l10 10M17 7L7 17"/></svg>
           </button>
           <button
             onClick={() => resolveSwipe('right')}
-            className="w-14 h-14 rounded-full flex items-center justify-center text-white active:scale-95 transition-transform"
-            style={{ backgroundColor: 'var(--accent)' }}
+            className="w-14 h-14 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+            style={{ backgroundColor: 'var(--surface)', border: '2px solid var(--accent)' }}
             aria-label="Trade"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path strokeLinecap="round" strokeLinejoin="round" d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" strokeWidth="1"><path d="M12 21s-6.7-4.35-9.33-8.2C.9 10.1 1.4 6.6 4.2 4.9c2.3-1.4 4.9-.7 6.4 1.1L12 7.4l1.4-1.4c1.5-1.8 4.1-2.5 6.4-1.1 2.8 1.7 3.3 5.2 1.53 7.9C18.7 16.65 12 21 12 21z"/></svg>
           </button>
         </div>
       )}
