@@ -38,7 +38,8 @@ export default function BikeCard({ bike, dragX = 0, dragging = false }) {
           width: 128,
           height: 128,
           border: '5px solid var(--accent)',
-          backgroundColor: 'rgba(20,23,31,0.15)',
+          backgroundColor: 'rgba(246,243,236,0.92)',
+          boxShadow: '0 4px 16px rgba(20,23,31,0.25)',
           opacity: likeOpacity,
           transform: `rotate(-8deg) scale(${0.85 + likeOpacity * 0.25})`,
         }}
@@ -53,7 +54,8 @@ export default function BikeCard({ bike, dragX = 0, dragging = false }) {
           width: 128,
           height: 128,
           border: '5px solid #DC2626',
-          backgroundColor: 'rgba(20,23,31,0.15)',
+          backgroundColor: 'rgba(246,243,236,0.92)',
+          boxShadow: '0 4px 16px rgba(20,23,31,0.25)',
           opacity: passOpacity,
           transform: `rotate(8deg) scale(${0.85 + passOpacity * 0.25})`,
         }}
