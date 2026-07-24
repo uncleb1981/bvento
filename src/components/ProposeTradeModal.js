@@ -26,7 +26,7 @@ export default function ProposeTradeModal({ targetBike, myBikes, submitting, onC
     if (offerMode === 'cash') {
       onConfirm({ myBike: null, cashAmount: Math.max(0, Number(cashOnlyAmount) || 0), cashDirection: 'i_pay', message });
     } else {
-      onConfirm({ myBike, cashAmount: cashDirection === 'even' ? 0 : cashAmount, cashDirection, message });
+      onConfirm({ myBike, cashAmount: cashDirection === 'even' ? 0 : Math.max(0, Number(cashAmount) || 0), cashDirection, message });
     }
   }
 
@@ -114,7 +114,7 @@ export default function ProposeTradeModal({ targetBike, myBikes, submitting, onC
                       min="0"
                       step="5"
                       value={cashAmount}
-                      onChange={(e) => setCashAmount(Math.max(0, Number(e.target.value)))}
+                      onChange={(e) => setCashAmount(e.target.value)}
                       className="w-full pl-6 pr-3 py-2.5 text-sm"
                       style={{ border: '1px solid var(--border)', backgroundColor: 'var(--surface)' }}
                     />
