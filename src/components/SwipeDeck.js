@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import BikeCard from './BikeCard';
 import ProposeTradeModal from './ProposeTradeModal';
 
@@ -11,6 +12,7 @@ export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, o
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [pendingTarget, setPendingTarget] = useState(null);
+  const [sentTarget, setSentTarget] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const startX = useRef(0);
   const resumedRef = useRef(false);
@@ -80,6 +82,7 @@ export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, o
     try {
       await onPropose(pendingTarget, offer);
       setCards((c) => c.slice(1));
+      setSentTarget(pendingTarget);
       setPendingTarget(null);
     } catch (err) {
       alert(`Couldn't send that offer: ${err.message || 'unknown error'}`);
@@ -162,6 +165,44 @@ export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, o
           onConfirm={handleConfirm}
         />
       )}
+
+      {sentTarget && (
+        <OfferSentModal targetBike={sentTarget} onClose={() => setSentTarget(null)} />
+      )}
+    </div>
+  );
+}
+
+function OfferSentModal({ targetBike, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
+      <div className="rounded-t-2xl sm:rounded-2xl p-7 max-w-md w-full animate-pop-in text-center" style={{ backgroundColor: 'var(--surface)' }}>
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+          style={{ backgroundColor: 'var(--accent)' }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h2 className="font-serif text-2xl mb-2" style={{ color: 'var(--ink)' }}>Offer sent!</h2>
+        <p className="text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
+          Your offer for <strong style={{ color: 'var(--ink)' }}>{targetBike.title}</strong> is on its way to {targetBike.ownerName}.
+        </p>
+        <p className="text-sm mb-6" style={{ color: 'var(--ink-soft)' }}>
+          If they accept, you&apos;ll get a chat thread to work out the details. Track it anytime in your Inbox.
+        </p>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 font-medium" style={{ color: 'var(--ink-soft)', border: '1px solid var(--border)' }}>
+            Keep swiping
+          </button>
+          <Link
+            href="/inbox?tab=Sent"
+            className="flex-1 py-3 font-medium text-white text-center"
+            style={{ backgroundColor: 'var(--ink)' }}
+          >
+            View in Inbox
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

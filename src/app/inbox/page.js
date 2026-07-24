@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { photoForBike } from '@/lib/mockData';
 import {
   getReceivedProposals,
@@ -20,7 +20,11 @@ const TABS = ['Received', 'Sent', 'Matches'];
 
 export default function InboxPage() {
   const router = useRouter();
-  const [tab, setTab] = useState('Received');
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState(() => {
+    const requested = searchParams.get('tab');
+    return TABS.includes(requested) ? requested : 'Received';
+  });
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
   const [received, setReceived] = useState([]);
