@@ -118,21 +118,31 @@ function InboxPageContent() {
       <h1 className="font-serif text-4xl mb-6" style={{ color: 'var(--ink)' }}>Inbox</h1>
 
       <div className="flex gap-1 mb-6 border-b" style={{ borderColor: 'var(--border)' }}>
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className="px-4 py-2.5 text-xs uppercase tracking-[0.12em] font-medium -mb-px"
-            style={
-              tab === t
-                ? { color: 'var(--ink)', borderBottom: '2px solid var(--accent)' }
-                : { color: 'var(--ink-soft)', borderBottom: '2px solid transparent' }
-            }
-          >
-            {t}
-            {t === 'Received' && received.length > 0 && ` (${received.length})`}
-          </button>
-        ))}
+        {TABS.map((t) => {
+          const count = t === 'Received' ? received.length : t === 'Sent' ? sent.length : conversations.length;
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className="relative px-4 py-2.5 text-xs uppercase tracking-[0.12em] font-medium -mb-px"
+              style={
+                tab === t
+                  ? { color: 'var(--ink)', borderBottom: '2px solid var(--accent)' }
+                  : { color: 'var(--ink-soft)', borderBottom: '2px solid transparent' }
+              }
+            >
+              {t}
+              {count > 0 && (
+                <span
+                  className="ml-1.5 inline-flex items-center justify-center min-w-[16px] h-4 px-1 text-white text-[10px] rounded-full font-bold align-middle"
+                  style={{ backgroundColor: 'var(--accent)' }}
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {error && <p className="text-sm mb-4" style={{ color: '#8A2A1F' }}>{error}</p>}
