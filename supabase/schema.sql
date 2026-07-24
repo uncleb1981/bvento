@@ -137,6 +137,32 @@ alter table trade_proposals add constraint trade_proposals_my_bike_id_fkey
 revoke delete on bikes from authenticated;
 revoke update (trade_complete) on conversations from authenticated;
 
+-- ── Completed trade log (2026-07-24) ────────────────────────────────────────
+-- A permanent record of every completed trade, since mark_trade_complete()
+-- below deletes the bikes/conversation/proposals entirely. RLS is enabled
+-- with NO policies at all — regular users (anon or authenticated) can never
+-- read or write this table. Only the SECURITY DEFINER function (which runs
+-- as the table owner and bypasses RLS) can insert into it, and only the
+-- project owner via the Supabase dashboard/Table Editor can read it.
+create table if not exists completed_trades (
+  id uuid primary key default gen_random_uuid(),
+  listing_owner_email text,
+  listing_owner_name text,
+  proposer_email text,
+  proposer_name text,
+  target_bike_title text,
+  target_bike_type text,
+  target_bike_value numeric,
+  offered_bike_title text,
+  offered_bike_type text,
+  offered_bike_value numeric,
+  cash_amount numeric,
+  cash_direction text,
+  completed_at timestamptz not null default now()
+);
+
+alter table completed_trades enable row level security;
+
 create or replace function mark_trade_complete(p_conversation_id uuid)
 returns void
 language plpgsql
@@ -144,16 +170,28 @@ security definer
 set search_path = public
 as $$
 declare
-  v_target_bike_id uuid;
+  v_conv conversations%rowtype;
   v_owner_id uuid;
+  v_owner_email text;
+  v_owner_name text;
+  v_proposer_email text;
+  v_proposer_name text;
+  v_target_bike_title text;
+  v_target_bike_type text;
+  v_target_bike_value numeric;
+  v_offered_bike_title text;
+  v_offered_bike_type text;
+  v_offered_bike_value numeric;
 begin
-  select c.target_bike_id, b.owner_id
-    into v_target_bike_id, v_owner_id
-    from conversations c
-    join bikes b on b.id = c.target_bike_id
-   where c.id = p_conversation_id;
+  select * into v_conv from conversations where id = p_conversation_id;
 
-  if v_target_bike_id is null then
+  if v_conv.id is null or v_conv.target_bike_id is null then
+    raise exception 'This trade was already completed or the listing was removed.';
+  end if;
+
+  select owner_id into v_owner_id from bikes where id = v_conv.target_bike_id;
+
+  if v_owner_id is null then
     raise exception 'This trade was already completed or the listing was removed.';
   end if;
 
@@ -161,12 +199,38 @@ begin
     raise exception 'Only the listing owner can mark this trade complete.';
   end if;
 
-  -- Trade is done — remove every record tied to this listing: the winning
-  -- conversation (messages cascade with it), every proposal ever made on
-  -- it (accepted or still pending), and the bike itself.
-  delete from conversations where target_bike_id = v_target_bike_id;
-  delete from trade_proposals where target_bike_id = v_target_bike_id or my_bike_id = v_target_bike_id;
-  delete from bikes where id = v_target_bike_id;
+  -- Record who traded what before any of it gets deleted below.
+  select email into v_owner_email from auth.users where id = v_owner_id;
+  select coalesce(name, 'Rider') into v_owner_name from profiles where id = v_owner_id;
+  select email into v_proposer_email from auth.users where id = v_conv.user_1_id;
+  select coalesce(name, 'Rider') into v_proposer_name from profiles where id = v_conv.user_1_id;
+
+  select title, type, estimated_value into v_target_bike_title, v_target_bike_type, v_target_bike_value
+    from bikes where id = v_conv.target_bike_id;
+
+  if v_conv.my_bike_id is not null then
+    select title, type, estimated_value into v_offered_bike_title, v_offered_bike_type, v_offered_bike_value
+      from bikes where id = v_conv.my_bike_id;
+  end if;
+
+  insert into completed_trades (
+    listing_owner_email, listing_owner_name, proposer_email, proposer_name,
+    target_bike_title, target_bike_type, target_bike_value,
+    offered_bike_title, offered_bike_type, offered_bike_value,
+    cash_amount, cash_direction
+  ) values (
+    v_owner_email, v_owner_name, v_proposer_email, v_proposer_name,
+    v_target_bike_title, v_target_bike_type, v_target_bike_value,
+    v_offered_bike_title, v_offered_bike_type, v_offered_bike_value,
+    v_conv.cash_amount, v_conv.cash_direction
+  );
+
+  -- Now remove every record tied to this listing: the winning conversation
+  -- (messages cascade with it), every proposal ever made on it (accepted or
+  -- still pending), and the bike itself.
+  delete from conversations where target_bike_id = v_conv.target_bike_id;
+  delete from trade_proposals where target_bike_id = v_conv.target_bike_id or my_bike_id = v_conv.target_bike_id;
+  delete from bikes where id = v_conv.target_bike_id;
 end;
 $$;
 
