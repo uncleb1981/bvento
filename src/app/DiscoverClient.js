@@ -102,7 +102,7 @@ export default function DiscoverClient({ initialBikes }) {
 
 const FAQ_ITEMS = [
   {
-    question: 'How does bike trading work on Bvento?',
+    question: 'How does bike trading work on bvento?',
     answer: 'Swipe right on a bike you want, then either offer one of your own bikes (with cash added to balance any difference in value) or make a cash-only offer. If the owner accepts, you get a chat thread to work out the details.',
   },
   {
@@ -110,12 +110,12 @@ const FAQ_ITEMS = [
     answer: 'Yes — a cash-only offer works exactly like a purchase. You don’t need to own a bike yourself to make an offer.',
   },
   {
-    question: 'Where does Bvento work?',
-    answer: 'Bvento is used by riders across Northwest Arkansas, including Bentonville, Rogers, Springdale, and Fayetteville.',
+    question: 'Where does bvento work?',
+    answer: 'bvento is used by riders across Northwest Arkansas, including Bentonville, Rogers, Springdale, and Fayetteville.',
   },
   {
     question: 'Is it free to post a bike for sale or trade?',
-    answer: 'Yes, posting a listing on Bvento is free.',
+    answer: 'Yes, posting a listing on bvento is free.',
   },
 ];
 

@@ -29,19 +29,19 @@ const fraunces = Fraunces({
 
 export const metadata = {
   metadataBase: new URL("https://bvento.com"),
-  title: "Bvento — Bike Trading in Bentonville & Northwest Arkansas",
+  title: "bvento — Bike Trading in Bentonville & Northwest Arkansas",
   description: "Trade bikes with local riders in Bentonville, Rogers, Springdale, and Fayetteville, AR. Browse listings, propose a trade, and add cash to balance the deal.",
   openGraph: {
-    title: "Bvento — Bike Trading in Bentonville & Northwest Arkansas",
+    title: "bvento — Bike Trading in Bentonville & Northwest Arkansas",
     description: "Trade bikes with local riders across Northwest Arkansas. Browse listings, propose a trade, and add cash to balance any gap in value.",
     url: "https://bvento.com",
-    siteName: "Bvento",
+    siteName: "bvento",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bvento — Bike Trading in Bentonville & Northwest Arkansas",
+    title: "bvento — Bike Trading in Bentonville & Northwest Arkansas",
     description: "Trade bikes with local riders across Northwest Arkansas. Browse listings, propose a trade, and add cash to balance any gap in value.",
   },
 };
@@ -49,7 +49,7 @@ export const metadata = {
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "Bvento",
+  name: "bvento",
   url: "https://bvento.com",
   description: "Trade bikes with local riders in Bentonville, Rogers, Springdale, and Fayetteville, AR.",
   areaServed: [
@@ -80,7 +80,7 @@ export default function RootLayout({ children }) {
             <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--ink-soft)' }}>
               Buy, sell, and trade used bikes with local riders in Bentonville, Rogers, Springdale, and Fayetteville, Arkansas.
             </p>
-            <div className="text-xs mt-3" style={{ color: 'var(--ink-soft)', opacity: 0.6 }}>© 2026 Bvento</div>
+            <div className="text-xs mt-3" style={{ color: 'var(--ink-soft)', opacity: 0.6 }}>© 2026 bvento</div>
           </div>
         </footer>
       </body>

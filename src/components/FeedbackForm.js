@@ -30,7 +30,7 @@ export default function FeedbackForm() {
   return (
     <div className="max-w-2xl mx-auto mt-16 mb-8 px-2">
       <div className="p-6 sm:p-8 text-center" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
-        <h2 className="font-serif text-2xl mb-2" style={{ color: 'var(--ink)' }}>Thanks for checking out Bvento</h2>
+        <h2 className="font-serif text-2xl mb-2" style={{ color: 'var(--ink)' }}>Thanks for checking out bvento</h2>
         <p className="text-sm max-w-md mx-auto mb-6" style={{ color: 'var(--ink-soft)' }}>
           We&apos;re building the first bike-trading app of its kind for Northwest Arkansas, and we&apos;re learning as we go.
           Something confusing, broken, or missing? Tell us. Love it? We&apos;d love to hear that too.

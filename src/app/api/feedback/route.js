@@ -47,9 +47,9 @@ export async function POST(request) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Bvento Feedback <onboarding@resend.dev>',
+          from: 'bvento Feedback <onboarding@resend.dev>',
           to: FEEDBACK_TO,
-          subject: 'New Bvento feedback',
+          subject: 'New bvento feedback',
           text: `${trimmedMessage}\n\n— from: ${trimmedContact || 'anonymous'}`,
         }),
       });
