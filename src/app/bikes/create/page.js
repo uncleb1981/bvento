@@ -112,7 +112,7 @@ export default function CreateBikePage() {
   return (
     <div className="max-w-lg mx-auto px-4 py-10">
       <h1 className="font-serif text-4xl mb-1" style={{ color: 'var(--ink)' }}>Post a bike</h1>
-      <p className="text-sm mb-6" style={{ color: 'var(--ink-soft)' }}>List your bike so other riders can swipe on it.</p>
+      <p className="text-sm mb-6" style={{ color: 'var(--ink-soft)' }}>Post your bike so other riders can swipe on it.</p>
 
       <div className="relative h-48 mb-3 overflow-hidden" style={{ border: '1px solid var(--border)' }}>
         <img src={previewPhoto} alt={form.type} className="absolute inset-0 w-full h-full object-cover" />

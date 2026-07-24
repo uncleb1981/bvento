@@ -59,7 +59,7 @@ export default function DiscoverClient({ initialBikes }) {
   return (
     <div className="max-w-5xl mx-auto px-4 py-4 sm:py-10">
       <div className="text-center mb-2 sm:mb-6">
-        <h1 className="font-serif text-3xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Swipe to Trade. List to Sell.</h1>
+        <h1 className="font-serif text-3xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Swipe to Trade. Post to Sell.</h1>
         <p className="text-sm sm:text-base mt-3 max-w-lg mx-auto" style={{ color: 'var(--ink-soft)' }}>
           Buy, sell, and trade used bikes with real riders in Bentonville, Rogers, Springdale &amp; Fayetteville, AR.
         </p>
@@ -68,7 +68,7 @@ export default function DiscoverClient({ initialBikes }) {
       {bikes.length === 0 && !error ? (
         <div className="max-w-sm mx-auto text-center px-6 py-14" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
           <p className="font-serif text-2xl mb-2" style={{ color: 'var(--ink)' }}>No bikes posted yet</p>
-          <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>Be the first rider in Northwest Arkansas to list one.</p>
+          <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>Be the first rider in Northwest Arkansas to post one.</p>
         </div>
       ) : (
         <SwipeDeck
