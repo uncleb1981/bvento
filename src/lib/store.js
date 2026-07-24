@@ -105,7 +105,7 @@ export async function addMyBike(userId, bike) {
 
 export async function deleteBike(bikeId) {
   const supabase = getSupabase();
-  const { error } = await supabase.from('bikes').delete().eq('id', bikeId);
+  const { error } = await supabase.rpc('delete_bike', { p_bike_id: bikeId });
   if (error) throw error;
 }
 
@@ -213,40 +213,9 @@ export async function declineProposal(proposalId) {
 
 export async function acceptProposalAndMatch(proposal) {
   const supabase = getSupabase();
-  const { error: updateErr } = await supabase
-    .from('trade_proposals')
-    .update({ status: 'accepted' })
-    .eq('id', proposal.id);
-  if (updateErr) throw updateErr;
-
-  const { data: conv, error: convErr } = await supabase
-    .from('conversations')
-    .insert({
-      proposal_id: proposal.id,
-      user_1_id: proposal.fromUserId,
-      user_2_id: proposal.toUserId,
-      my_bike_id: proposal.myBike?.id ?? null,
-      target_bike_id: proposal.targetBike.id,
-      cash_amount: proposal.cashAmount,
-      cash_direction: proposal.cashDirection,
-    })
-    .select()
-    .single();
-  if (convErr) throw convErr;
-
-  // System message is read by both participants, so always name the payer
-  // explicitly rather than using "you" (which only makes sense per-viewer).
-  const payerName = proposal.cashDirection === 'i_pay' ? proposal.fromUserName : proposal.toUserName;
-  const dealDescription = proposal.myBike
-    ? `${proposal.myBike.title} ⇄ ${proposal.targetBike.title}${cashSummary(proposal, payerName)}`
-    : `Cash offer for ${proposal.targetBike.title}${cashSummary(proposal, payerName)}`;
-  await supabase.from('messages').insert({
-    conversation_id: conv.id,
-    sender_id: null,
-    message: `It's a match! ${dealDescription}`,
-  });
-
-  return conv.id;
+  const { data, error } = await supabase.rpc('accept_proposal_and_match', { p_proposal_id: proposal.id });
+  if (error) throw error;
+  return data;
 }
 
 // ── Conversations / matches ───────────────────────────────────────────────────
@@ -326,26 +295,13 @@ export async function sendMessage(conversationId, text, senderId) {
   await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
 }
 
-export async function markTradeComplete(conversationId, userId) {
+export async function markTradeComplete(conversationId) {
   const supabase = getSupabase();
-
-  // conversations.target_bike_id is always the original listing this trade
-  // was proposed on. Only the person who posted it (not whoever proposed the
-  // trade) is allowed to mark it complete — checked here, not just hidden in
-  // the UI, so it can't be bypassed.
-  const { data: conv } = await supabase
-    .from('conversations')
-    .select('target_bike_id, target_bike:bikes!conversations_target_bike_id_fkey(owner_id)')
-    .eq('id', conversationId)
-    .single();
-  if (!conv?.target_bike_id || conv.target_bike?.owner_id !== userId) {
-    throw new Error('Only the listing owner can mark this trade complete.');
-  }
-
-  const { error } = await supabase.from('conversations').update({ trade_complete: true }).eq('id', conversationId);
+  // Ownership (only the listing owner can complete the trade) is enforced
+  // inside this function server-side, not just here — see
+  // mark_trade_complete() in supabase/schema.sql.
+  const { error } = await supabase.rpc('mark_trade_complete', { p_conversation_id: conversationId });
   if (error) throw error;
-
-  await supabase.from('bikes').delete().eq('id', conv.target_bike_id);
 }
 
 // ── Cash math ─────────────────────────────────────────────────────────────────

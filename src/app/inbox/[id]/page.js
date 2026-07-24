@@ -73,7 +73,7 @@ export default function ConversationPage() {
 
   async function handleMarkComplete() {
     try {
-      await markTradeComplete(id, user.id);
+      await markTradeComplete(id);
       setConversation((c) => ({ ...c, tradeComplete: true, targetBike: c.targetBike?.ownerId === user.id ? null : c.targetBike }));
     } catch {
       // no-op — button stays available to retry

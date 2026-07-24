@@ -195,10 +195,16 @@ function ProposalCard({ proposal, onAccept, onDecline, mine = false, busy = fals
           <CashOfferTile amount={proposal.cashAmount} />
         )}
         <div className="font-serif italic text-lg" style={{ color: 'var(--ink-soft)' }}>for</div>
-        <div className="flex-1 h-20 overflow-hidden relative">
-          <img src={photoForBike(proposal.targetBike)} alt={proposal.targetBike.title} className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 flex items-end p-1.5 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{proposal.targetBike.title}</div>
-        </div>
+        {proposal.targetBike ? (
+          <div className="flex-1 h-20 overflow-hidden relative">
+            <img src={photoForBike(proposal.targetBike)} alt={proposal.targetBike.title} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 flex items-end p-1.5 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{proposal.targetBike.title}</div>
+          </div>
+        ) : (
+          <div className="flex-1 h-20 flex flex-col items-center justify-center" style={{ backgroundColor: 'var(--accent-soft)' }}>
+            <span className="text-[10px] uppercase tracking-[0.08em] text-center px-1" style={{ color: 'var(--ink-soft)' }}>Listing removed</span>
+          </div>
+        )}
       </div>
 
       <p className="text-sm mb-1" style={{ color: 'var(--ink)' }}>
