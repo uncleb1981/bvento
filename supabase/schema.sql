@@ -79,6 +79,8 @@ create policy "users create proposals as themselves" on trade_proposals for inse
   with check (auth.uid() = from_user_id);
 create policy "recipient can update proposal status" on trade_proposals for update
   using (auth.uid() = to_user_id or auth.uid() = from_user_id);
+create policy "proposer can delete their declined proposals" on trade_proposals for delete
+  using (auth.uid() = from_user_id and status = 'declined');
 
 create policy "users see their own conversations" on conversations for select
   using (auth.uid() = user_1_id or auth.uid() = user_2_id);

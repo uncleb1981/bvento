@@ -211,6 +211,14 @@ export async function declineProposal(proposalId) {
   if (error) throw error;
 }
 
+// Only the proposer can delete their own proposal, and only once it's been
+// declined — enforced by RLS, not just hidden in the UI.
+export async function deleteProposal(proposalId) {
+  const supabase = getSupabase();
+  const { error } = await supabase.from('trade_proposals').delete().eq('id', proposalId);
+  if (error) throw error;
+}
+
 export async function acceptProposalAndMatch(proposal) {
   const supabase = getSupabase();
   const { data, error } = await supabase.rpc('accept_proposal_and_match', { p_proposal_id: proposal.id });

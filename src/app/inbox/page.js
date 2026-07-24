@@ -10,6 +10,7 @@ import {
   getConversations,
   getCurrentUser,
   declineProposal,
+  deleteProposal,
   acceptProposalAndMatch,
   cashSummary,
   resolvePayer,
@@ -96,6 +97,19 @@ function InboxPageContent() {
     }
   }
 
+  async function handleDeleteProposal(proposal) {
+    setBusyId(proposal.id);
+    setError('');
+    try {
+      await deleteProposal(proposal.id);
+      await refresh(user);
+    } catch (err) {
+      setError(err.message || 'Could not remove that offer.');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <h1 className="font-serif text-4xl mb-6" style={{ color: 'var(--ink)' }}>Inbox</h1>
@@ -143,7 +157,13 @@ function InboxPageContent() {
             <EmptyState text="You haven't proposed any trades yet. Head to Discover and swipe right on a bike." />
           )}
           {sent.map((p) => (
-            <ProposalCard key={p.id} proposal={p} mine />
+            <ProposalCard
+              key={p.id}
+              proposal={p}
+              mine
+              busy={busyId === p.id}
+              onDelete={() => handleDeleteProposal(p)}
+            />
           ))}
         </div>
       )}
@@ -192,7 +212,7 @@ function EmptyState({ text }) {
   );
 }
 
-function ProposalCard({ proposal, onAccept, onDecline, mine = false, busy = false }) {
+function ProposalCard({ proposal, onAccept, onDecline, onDelete, mine = false, busy = false }) {
   const otherPersonName = mine ? proposal.toUserName : proposal.fromUserName;
   const payerName = resolvePayer(proposal.cashDirection, mine, otherPersonName);
   return (
@@ -229,7 +249,19 @@ function ProposalCard({ proposal, onAccept, onDecline, mine = false, busy = fals
       <div className="flex items-center justify-between mt-3">
         <span className="text-xs" style={{ color: 'var(--ink-soft)' }}>{timeAgo(proposal.createdAt)}</span>
         {mine ? (
-          <StatusBadge status={proposal.status} />
+          <div className="flex items-center gap-2">
+            <StatusBadge status={proposal.status} />
+            {proposal.status === 'declined' && (
+              <button
+                onClick={onDelete}
+                disabled={busy}
+                className="px-3 py-1.5 text-xs uppercase tracking-[0.08em] font-medium disabled:opacity-50"
+                style={{ color: '#8A2A1F', border: '1px solid var(--border)' }}
+              >
+                {busy ? '…' : 'Delete'}
+              </button>
+            )}
+          </div>
         ) : (
           <div className="flex gap-2">
             <button onClick={onDecline} disabled={busy} className="px-3 py-1.5 text-xs uppercase tracking-[0.08em] font-medium disabled:opacity-50" style={{ color: 'var(--ink-soft)', border: '1px solid var(--border)' }}>
