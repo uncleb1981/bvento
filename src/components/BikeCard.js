@@ -1,4 +1,4 @@
-import { photoForBike } from '@/lib/mockData';
+import { photoForBike, altForBike } from '@/lib/mockData';
 
 export default function BikeCard({ bike, dragX = 0, dragging = false }) {
   const rotate = Math.max(-14, Math.min(14, dragX / 14));
@@ -17,7 +17,7 @@ export default function BikeCard({ bike, dragX = 0, dragging = false }) {
     >
       <img
         src={photoForBike(bike)}
-        alt={bike.title}
+        alt={altForBike(bike)}
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         draggable={false}
       />

@@ -59,7 +59,10 @@ export default function DiscoverClient({ initialBikes }) {
   return (
     <div className="max-w-5xl mx-auto px-4 py-4 sm:py-10">
       <div className="text-center mb-2 sm:mb-6">
-        <h1 className="font-serif text-3xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Swipe right to say yes</h1>
+        <h1 className="font-serif text-3xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Swipe to Trade. List to Sell.</h1>
+        <p className="text-sm sm:text-base mt-3 max-w-lg mx-auto" style={{ color: 'var(--ink-soft)' }}>
+          Buy, sell, and trade used bikes with real riders in Bentonville, Rogers, Springdale &amp; Fayetteville, AR.
+        </p>
       </div>
       {error && <p className="text-center text-sm mb-6" style={{ color: '#8A2A1F' }}>{error}</p>}
       {bikes.length === 0 && !error ? (
@@ -77,6 +80,53 @@ export default function DiscoverClient({ initialBikes }) {
           onRequireAuth={handleRequireAuth}
         />
       )}
+      <DiscoverFaq />
+    </div>
+  );
+}
+
+const FAQ_ITEMS = [
+  {
+    question: 'How does bike trading work on Bvento?',
+    answer: 'Swipe right on a bike you want, then either offer one of your own bikes (with cash added to balance any difference in value) or make a cash-only offer. If the owner accepts, you get a chat thread to work out the details.',
+  },
+  {
+    question: 'Can I just buy a used bike instead of trading?',
+    answer: 'Yes — a cash-only offer works exactly like a purchase. You don’t need to own a bike yourself to make an offer.',
+  },
+  {
+    question: 'Where does Bvento work?',
+    answer: 'Bvento is used by riders across Northwest Arkansas, including Bentonville, Rogers, Springdale, and Fayetteville.',
+  },
+  {
+    question: 'Is it free to post a bike for sale or trade?',
+    answer: 'Yes, posting a listing on Bvento is free.',
+  },
+];
+
+function DiscoverFaq() {
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto mt-16 px-2">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <h2 className="font-serif text-2xl mb-4 text-center" style={{ color: 'var(--ink)' }}>Frequently asked questions</h2>
+      <div className="space-y-4">
+        {FAQ_ITEMS.map((item) => (
+          <div key={item.question} className="p-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
+            <div className="text-sm font-semibold mb-1" style={{ color: 'var(--ink)' }}>{item.question}</div>
+            <div className="text-sm" style={{ color: 'var(--ink-soft)' }}>{item.answer}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
