@@ -42,6 +42,7 @@ function InboxPageContent() {
   const [conversations, setConversations] = useState([]);
   const [busyId, setBusyId] = useState(null);
   const [error, setError] = useState('');
+  const [matchInfo, setMatchInfo] = useState(null);
 
   const refresh = useCallback(async (currentUser) => {
     const [r, s, c] = await Promise.all([
@@ -76,8 +77,9 @@ function InboxPageContent() {
     setBusyId(proposal.id);
     setError('');
     try {
-      await acceptProposalAndMatch(proposal);
+      const conversationId = await acceptProposalAndMatch(proposal);
       await refresh(user);
+      setMatchInfo({ conversationId, otherName: proposal.fromUserName });
     } catch (err) {
       setError(err.message || 'Could not accept that offer.');
     } finally {
@@ -201,6 +203,48 @@ function InboxPageContent() {
           ))}
         </div>
       )}
+
+      {matchInfo && (
+        <AcceptedMatchModal
+          otherName={matchInfo.otherName}
+          conversationId={matchInfo.conversationId}
+          onClose={() => setMatchInfo(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function AcceptedMatchModal({ otherName, conversationId, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
+      <div className="rounded-t-2xl sm:rounded-2xl p-7 max-w-md w-full animate-pop-in text-center" style={{ backgroundColor: 'var(--surface)' }}>
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+          style={{ backgroundColor: 'var(--accent)' }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h2 className="font-serif text-2xl mb-2" style={{ color: 'var(--ink)' }}>It&apos;s a match!</h2>
+        <p className="text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
+          You accepted the offer from <strong style={{ color: 'var(--ink)' }}>{otherName}</strong>.
+        </p>
+        <p className="text-sm mb-6" style={{ color: 'var(--ink-soft)' }}>
+          Head to the chat to work out pickup, payment, and any other details. Once you&apos;ve handed off the bike, mark the trade complete from there.
+        </p>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 font-medium" style={{ color: 'var(--ink-soft)', border: '1px solid var(--border)' }}>
+            Stay here
+          </button>
+          <Link
+            href={`/inbox/${conversationId}`}
+            className="flex-1 py-3 font-medium text-white text-center"
+            style={{ backgroundColor: 'var(--ink)' }}
+          >
+            Go to chat
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
