@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getCurrentUser, getReceivedPendingCount } from '@/lib/store';
+import { getCurrentUser, getNotificationCount } from '@/lib/store';
 
 const ICONS = {
   discover: (
@@ -41,7 +41,7 @@ export default function BottomNav() {
         return;
       }
       try {
-        setPendingCount(await getReceivedPendingCount(me.id));
+        setPendingCount(await getNotificationCount(me.id));
       } catch {
         // ignore transient count errors
       }

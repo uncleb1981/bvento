@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
-import { getReceivedPendingCount } from '@/lib/store';
+import { getNotificationCount } from '@/lib/store';
 
 export default function Navbar() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function Navbar() {
         return;
       }
       try {
-        setPendingCount(await getReceivedPendingCount(userId));
+        setPendingCount(await getNotificationCount(userId));
       } catch {
         // ignore transient count errors
       }

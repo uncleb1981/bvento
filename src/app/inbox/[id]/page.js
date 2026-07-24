@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { photoForBike } from '@/lib/mockData';
-import { getConversation, getMessages, sendMessage, markTradeComplete, getCurrentUser, cashSummary, resolvePayer, timeAgo } from '@/lib/store';
+import { getConversation, getMessages, sendMessage, markTradeComplete, leaveChat, getCurrentUser, cashSummary, resolvePayer, timeAgo } from '@/lib/store';
 
 export default function ConversationPage() {
   const { id } = useParams();
@@ -15,6 +15,7 @@ export default function ConversationPage() {
   const [ready, setReady] = useState(false);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const bottomRef = useRef(null);
 
   const refreshMessages = useCallback(async () => {
@@ -80,13 +81,36 @@ export default function ConversationPage() {
     }
   }
 
+  async function handleLeaveChat() {
+    if (!window.confirm('Leave this chat? The other person will be notified the trade fell through, and this conversation will be gone for both of you.')) return;
+    setLeaving(true);
+    try {
+      await leaveChat(id);
+      router.push('/inbox?tab=Chat');
+    } catch {
+      setLeaving(false);
+    }
+  }
+
   if (!ready || !conversation || !user) return null;
 
   const payerName = resolvePayer(conversation.cashDirection, conversation.viewerIsProposer, conversation.otherUser.name);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col" style={{ minHeight: '75vh' }}>
-      <Link href="/inbox" className="text-xs uppercase tracking-[0.1em] mb-4" style={{ color: 'var(--ink-soft)' }}>← Back to inbox</Link>
+      <div className="flex items-center justify-between mb-4">
+        <Link href="/inbox" className="text-xs uppercase tracking-[0.1em]" style={{ color: 'var(--ink-soft)' }}>← Back to inbox</Link>
+        {!conversation.tradeComplete && (
+          <button
+            onClick={handleLeaveChat}
+            disabled={leaving}
+            className="text-xs uppercase tracking-[0.1em] font-medium disabled:opacity-50"
+            style={{ color: '#8A2A1F' }}
+          >
+            {leaving ? 'Leaving…' : 'Leave chat'}
+          </button>
+        )}
+      </div>
 
       <div className="p-5 mb-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
         <div className="flex items-center gap-3 mb-3">

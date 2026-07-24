@@ -35,6 +35,7 @@ create table if not exists trade_proposals (
   cash_direction text not null default 'even', -- i_pay | they_pay | even (relative to from_user)
   message text,
   status text not null default 'pending', -- pending | accepted | declined
+  proposer_seen boolean not null default true, -- false when declined and the proposer hasn't viewed it yet
   created_at timestamptz not null default now()
 );
 
@@ -344,3 +345,50 @@ create table if not exists feedback (
 alter table feedback enable row level security;
 
 create policy "anyone can submit feedback" on feedback for insert with check (true);
+
+-- ── Decline notifications for proposers (2026-07-24) ────────────────────────
+-- No new RLS policy needed — the existing "recipient can update proposal
+-- status" policy already lets either participant (from_user_id or
+-- to_user_id) update any column on their own trade_proposals rows, which
+-- covers both the recipient clearing it to false on decline and the
+-- proposer clearing it back to true once they've seen it.
+alter table trade_proposals add column if not exists proposer_seen boolean not null default true;
+
+-- ── Leave chat (2026-07-24) ──────────────────────────────────────────────────
+-- Either participant can walk away from a match/chat. There's no DELETE
+-- policy on conversations at all, so this has to go through a SECURITY
+-- DEFINER function rather than a direct client delete. The underlying
+-- proposal is declined (not deleted) so it doesn't linger as a phantom
+-- "accepted" offer with no chat behind it, and the other person gets a
+-- decline notification if they weren't the one who left.
+create or replace function leave_chat(p_conversation_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_conv conversations%rowtype;
+begin
+  select * into v_conv from conversations where id = p_conversation_id;
+
+  if v_conv.id is null then
+    raise exception 'This chat no longer exists.';
+  end if;
+
+  if auth.uid() is distinct from v_conv.user_1_id and auth.uid() is distinct from v_conv.user_2_id then
+    raise exception 'You are not part of this chat.';
+  end if;
+
+  if v_conv.proposal_id is not null then
+    update trade_proposals
+       set status = 'declined',
+           proposer_seen = (auth.uid() = v_conv.user_1_id)
+     where id = v_conv.proposal_id;
+  end if;
+
+  delete from conversations where id = p_conversation_id;
+end;
+$$;
+
+grant execute on function leave_chat(uuid) to authenticated;

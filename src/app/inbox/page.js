@@ -13,6 +13,7 @@ import {
   declineProposal,
   deleteProposal,
   acceptProposalAndMatch,
+  markSentProposalsSeen,
   cashSummary,
   resolvePayer,
   timeAgo,
@@ -71,6 +72,20 @@ function InboxPageContent() {
     return () => { cancelled = true; };
   }, [router, refresh]);
 
+  useEffect(() => {
+    if (!ready || !user || tab !== 'Sent') return;
+    const hasUnseenDeclined = sent.some((p) => p.status === 'declined' && !p.proposerSeen);
+    if (!hasUnseenDeclined) return;
+    (async () => {
+      try {
+        await markSentProposalsSeen(user.id);
+        setSent(await getSentProposals(user.id));
+      } catch {
+        // non-critical — worst case the notification just stays visible
+      }
+    })();
+  }, [tab, ready, user, sent]);
+
   if (!ready || !user) return null;
 
   async function handleAccept(proposal) {
@@ -113,6 +128,8 @@ function InboxPageContent() {
     }
   }
 
+  const unseenDeclinedCount = sent.filter((p) => p.status === 'declined' && !p.proposerSeen).length;
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <h1 className="font-serif text-4xl mb-6" style={{ color: 'var(--ink)' }}>Inbox</h1>
@@ -132,6 +149,13 @@ function InboxPageContent() {
               }
             >
               {t}
+              {t === 'Sent' && unseenDeclinedCount > 0 && (
+                <span
+                  className="absolute top-1 right-1 w-2 h-2 rounded-full"
+                  style={{ backgroundColor: '#DC2626' }}
+                  aria-label="New activity"
+                />
+              )}
               {count > 0 && (
                 <span
                   className="ml-1.5 inline-flex items-center justify-center min-w-[16px] h-4 px-1 text-white text-[10px] rounded-full font-bold align-middle"
@@ -316,6 +340,14 @@ function ProposalCard({ proposal, onAccept, onDecline, onDelete, mine = false, b
         <span className="text-xs" style={{ color: 'var(--ink-soft)' }}>{timeAgo(proposal.createdAt)}</span>
         {mine ? (
           <div className="flex items-center gap-2">
+            {proposal.status === 'declined' && !proposal.proposerSeen && (
+              <span
+                className="text-[10px] uppercase tracking-[0.08em] font-bold px-2 py-1 rounded-full text-white"
+                style={{ backgroundColor: '#DC2626' }}
+              >
+                New
+              </span>
+            )}
             <StatusBadge status={proposal.status} />
             {proposal.status === 'declined' && (
               <button

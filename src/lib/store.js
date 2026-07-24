@@ -179,6 +179,7 @@ function adaptProposal(row) {
     cashDirection: row.cash_direction,
     message: row.message,
     status: row.status,
+    proposerSeen: row.proposer_seen,
     createdAt: row.created_at,
   };
 }
@@ -242,7 +243,43 @@ export async function addProposal({ fromUserId, targetBike, myBike, cashAmount, 
 
 export async function declineProposal(proposalId) {
   const supabase = getSupabase();
-  const { error } = await supabase.from('trade_proposals').update({ status: 'declined' }).eq('id', proposalId);
+  const { error } = await supabase
+    .from('trade_proposals')
+    .update({ status: 'declined', proposer_seen: false })
+    .eq('id', proposalId);
+  if (error) throw error;
+}
+
+export async function getUnseenDeclinedCount(userId) {
+  const supabase = getSupabase();
+  const { count, error } = await supabase
+    .from('trade_proposals')
+    .select('id', { count: 'exact', head: true })
+    .eq('from_user_id', userId)
+    .eq('status', 'declined')
+    .eq('proposer_seen', false);
+  if (error) throw error;
+  return count || 0;
+}
+
+// Combined "things needing your attention" count for nav badges: offers
+// waiting on your decision, plus offers you sent that just got declined.
+export async function getNotificationCount(userId) {
+  const [pending, unseenDeclined] = await Promise.all([
+    getReceivedPendingCount(userId),
+    getUnseenDeclinedCount(userId),
+  ]);
+  return pending + unseenDeclined;
+}
+
+export async function markSentProposalsSeen(userId) {
+  const supabase = getSupabase();
+  const { error } = await supabase
+    .from('trade_proposals')
+    .update({ proposer_seen: true })
+    .eq('from_user_id', userId)
+    .eq('status', 'declined')
+    .eq('proposer_seen', false);
   if (error) throw error;
 }
 
@@ -344,6 +381,12 @@ export async function markTradeComplete(conversationId) {
   // inside this function server-side, not just here — see
   // mark_trade_complete() in supabase/schema.sql.
   const { error } = await supabase.rpc('mark_trade_complete', { p_conversation_id: conversationId });
+  if (error) throw error;
+}
+
+export async function leaveChat(conversationId) {
+  const supabase = getSupabase();
+  const { error } = await supabase.rpc('leave_chat', { p_conversation_id: conversationId });
   if (error) throw error;
 }
 
