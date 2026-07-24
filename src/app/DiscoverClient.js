@@ -11,12 +11,23 @@ import {
   addProposal,
 } from '@/lib/store';
 
+const RESUME_KEY = 'bvento_resume_bike';
+
 export default function DiscoverClient({ initialBikes }) {
   const router = useRouter();
   const [bikes, setBikes] = useState(initialBikes);
   const [myBikes, setMyBikes] = useState([]);
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
+  const [resumeBikeId, setResumeBikeId] = useState(null);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem(RESUME_KEY);
+    if (stored) {
+      sessionStorage.removeItem(RESUME_KEY);
+      setResumeBikeId(stored);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,7 +63,8 @@ export default function DiscoverClient({ initialBikes }) {
     });
   }
 
-  function handleRequireAuth() {
+  function handleRequireAuth(bike) {
+    if (bike) sessionStorage.setItem(RESUME_KEY, bike.id);
     router.push('/login?next=/');
   }
 
@@ -78,6 +90,7 @@ export default function DiscoverClient({ initialBikes }) {
           onPass={handlePass}
           onPropose={handlePropose}
           onRequireAuth={handleRequireAuth}
+          resumeBikeId={resumeBikeId}
         />
       )}
       <DiscoverFaq />

@@ -1,20 +1,37 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import BikeCard from './BikeCard';
 import ProposeTradeModal from './ProposeTradeModal';
 
 const SWIPE_THRESHOLD = 120;
 
-export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, onRequireAuth }) {
+export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, onRequireAuth, resumeBikeId }) {
   const [cards, setCards] = useState(bikes);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [pendingTarget, setPendingTarget] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const startX = useRef(0);
+  const resumedRef = useRef(false);
 
   const topCard = cards[0];
+
+  // After logging in to complete a swipe-right that required auth, jump
+  // straight back to the trade modal for that bike instead of dropping the
+  // user back at the top of the deck with no memory of their intent.
+  useEffect(() => {
+    if (!resumeBikeId || !authed || resumedRef.current) return;
+    const target = bikes.find((b) => b.id === resumeBikeId);
+    if (!target) return;
+    resumedRef.current = true;
+    setCards((c) => {
+      const idx = c.findIndex((b) => b.id === resumeBikeId);
+      if (idx <= 0) return c;
+      return [c[idx], ...c.slice(0, idx), ...c.slice(idx + 1)];
+    });
+    setPendingTarget(target);
+  }, [resumeBikeId, authed, bikes]);
 
   function handlePointerDown(e) {
     if (pendingTarget) return;
@@ -51,7 +68,7 @@ export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, o
       }, 220);
     } else if (!authed) {
       setDragX(0);
-      onRequireAuth();
+      onRequireAuth(topCard);
     } else {
       setDragX(0);
       setPendingTarget(topCard);
