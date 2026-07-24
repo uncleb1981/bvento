@@ -103,6 +103,41 @@ export async function addMyBike(userId, bike) {
   return adaptBike(data);
 }
 
+export async function getBike(bikeId) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('bikes')
+    .select('*, profiles(name, city)')
+    .eq('id', bikeId)
+    .single();
+  if (error) return null;
+  return adaptBike(data);
+}
+
+// RLS ("users manage their own bikes") already restricts this to the bike's
+// owner — no separate RPC needed since it's a plain field update, not a
+// multi-table operation.
+export async function updateBike(bikeId, bike) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('bikes')
+    .update({
+      title: bike.title,
+      type: bike.type,
+      condition: bike.condition,
+      estimated_value: bike.estimatedValue,
+      description: bike.description,
+      city: bike.city,
+      photo_url: bike.photo,
+      poster_name: bike.posterName,
+    })
+    .eq('id', bikeId)
+    .select('*, profiles(name, city)')
+    .single();
+  if (error) throw error;
+  return adaptBike(data);
+}
+
 export async function deleteBike(bikeId) {
   const supabase = getSupabase();
   const { error } = await supabase.rpc('delete_bike', { p_bike_id: bikeId });

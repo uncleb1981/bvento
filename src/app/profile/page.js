@@ -163,14 +163,23 @@ function ProfileContent() {
                 <div className="font-serif text-lg mt-0.5">${bike.estimatedValue.toLocaleString()}</div>
               </div>
             </div>
-            <button
-              onClick={() => handleDelete(bike)}
-              disabled={deletingId === bike.id}
-              className="w-full mt-2 py-2 text-xs uppercase tracking-[0.1em] font-medium disabled:opacity-50"
-              style={{ border: '1px solid var(--border)', color: '#8A2A1F' }}
-            >
-              {deletingId === bike.id ? 'Deleting…' : 'Delete'}
-            </button>
+            <div className="flex gap-2 mt-2">
+              <Link
+                href={`/bikes/${bike.id}/edit`}
+                className="flex-1 py-2 text-xs uppercase tracking-[0.1em] font-medium text-center"
+                style={{ border: '1px solid var(--border)', color: 'var(--ink)' }}
+              >
+                Edit
+              </Link>
+              <button
+                onClick={() => handleDelete(bike)}
+                disabled={deletingId === bike.id}
+                className="flex-1 py-2 text-xs uppercase tracking-[0.1em] font-medium disabled:opacity-50"
+                style={{ border: '1px solid var(--border)', color: '#8A2A1F' }}
+              >
+                {deletingId === bike.id ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
           </div>
         ))}
       </div>
