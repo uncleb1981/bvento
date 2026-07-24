@@ -134,7 +134,7 @@ function ProfileContent() {
 
       <div className="grid grid-cols-3 gap-3 mb-8">
         <Stat label="Bikes posted" value={myBikes.length} />
-        <Stat label="Matches" value={matchCount} />
+        <Stat label="Chats" value={matchCount} />
         <Stat label="Trades done" value={user.completedTrades} />
       </div>
 

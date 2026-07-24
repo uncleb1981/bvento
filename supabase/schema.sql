@@ -191,11 +191,11 @@ begin
     raise exception 'Only the owner can delete this listing.';
   end if;
 
-  update trade_proposals
-     set status = 'declined'
-   where (target_bike_id = p_bike_id or my_bike_id = p_bike_id)
-     and status = 'pending';
-
+  -- Remove every record tied to this listing: any chat it's part of
+  -- (messages cascade with it), every proposal ever made on it (sent or
+  -- received, any status), and the bike itself.
+  delete from conversations where target_bike_id = p_bike_id or my_bike_id = p_bike_id;
+  delete from trade_proposals where target_bike_id = p_bike_id or my_bike_id = p_bike_id;
   delete from bikes where id = p_bike_id;
 end;
 $$;

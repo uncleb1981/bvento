@@ -18,7 +18,7 @@ import {
   timeAgo,
 } from '@/lib/store';
 
-const TABS = ['Received', 'Sent', 'Matches'];
+const TABS = ['Received', 'Sent', 'Chat'];
 
 export default function InboxPage() {
   return (
@@ -181,10 +181,10 @@ function InboxPageContent() {
         </div>
       )}
 
-      {tab === 'Matches' && (
+      {tab === 'Chat' && (
         <div className="space-y-3">
           {conversations.length === 0 && (
-            <EmptyState text="No matches yet. Accepted trades turn into a match with a chat thread." />
+            <EmptyState text="No chats yet. Accepted trades turn into a chat thread here." />
           )}
           {conversations.map((c) => (
             <Link
