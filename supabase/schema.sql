@@ -159,16 +159,11 @@ begin
     raise exception 'Only the listing owner can mark this trade complete.';
   end if;
 
-  update conversations set trade_complete = true where id = p_conversation_id;
-
-  -- This bike can no longer be traded — decline any other still-pending
-  -- proposals that reference it, instead of letting the delete below erase
-  -- them silently.
-  update trade_proposals
-     set status = 'declined'
-   where (target_bike_id = v_target_bike_id or my_bike_id = v_target_bike_id)
-     and status = 'pending';
-
+  -- Trade is done — remove every record tied to this listing: the winning
+  -- conversation (messages cascade with it), every proposal ever made on
+  -- it (accepted or still pending), and the bike itself.
+  delete from conversations where target_bike_id = v_target_bike_id;
+  delete from trade_proposals where target_bike_id = v_target_bike_id or my_bike_id = v_target_bike_id;
   delete from bikes where id = v_target_bike_id;
 end;
 $$;
