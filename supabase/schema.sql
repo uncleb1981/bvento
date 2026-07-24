@@ -261,3 +261,20 @@ end;
 $$;
 
 grant execute on function accept_proposal_and_match(uuid) to authenticated;
+
+-- ── Site feedback (2026-07-24) ──────────────────────────────────────────────
+-- Backup log for the homepage feedback form — the form's primary delivery is
+-- an email via /api/feedback, this table just means a submission isn't lost
+-- if that email ever fails to send. Public can insert (anonymous feedback is
+-- fine), but nobody except the project owner (via the Supabase dashboard,
+-- which uses the service role and bypasses RLS) can read it back.
+create table if not exists feedback (
+  id uuid primary key default gen_random_uuid(),
+  message text not null,
+  contact text,
+  created_at timestamptz not null default now()
+);
+
+alter table feedback enable row level security;
+
+create policy "anyone can submit feedback" on feedback for insert with check (true);

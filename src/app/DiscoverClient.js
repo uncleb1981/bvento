@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SwipeDeck from '@/components/SwipeDeck';
+import FeedbackForm from '@/components/FeedbackForm';
 import {
   getFeedBikes,
   getMyBikes,
@@ -94,6 +95,7 @@ export default function DiscoverClient({ initialBikes }) {
         />
       )}
       <DiscoverFaq />
+      <FeedbackForm />
     </div>
   );
 }
