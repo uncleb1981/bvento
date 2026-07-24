@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { photoForBike } from '@/lib/mockData';
@@ -19,6 +19,14 @@ import {
 const TABS = ['Received', 'Sent', 'Matches'];
 
 export default function InboxPage() {
+  return (
+    <Suspense fallback={null}>
+      <InboxPageContent />
+    </Suspense>
+  );
+}
+
+function InboxPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [tab, setTab] = useState(() => {
