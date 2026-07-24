@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { photoForBike } from '@/lib/mockData';
+import BikeDetailModal from '@/components/BikeDetailModal';
 import {
   getReceivedProposals,
   getSentProposals,
@@ -215,29 +216,40 @@ function EmptyState({ text }) {
 function ProposalCard({ proposal, onAccept, onDecline, onDelete, mine = false, busy = false }) {
   const otherPersonName = mine ? proposal.toUserName : proposal.fromUserName;
   const payerName = resolvePayer(proposal.cashDirection, mine, otherPersonName);
+  const [detailBike, setDetailBike] = useState(null);
   return (
     <div className="p-4" style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}>
       <div className="flex items-center gap-3 mb-3">
         {proposal.myBike ? (
-          <div className="flex-1 h-20 overflow-hidden relative">
+          <button
+            type="button"
+            onClick={() => setDetailBike(proposal.myBike)}
+            className="flex-1 h-20 overflow-hidden relative text-left"
+          >
             <img src={photoForBike(proposal.myBike)} alt={proposal.myBike.title} className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 flex items-end p-1.5 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{proposal.myBike.title}</div>
-          </div>
+          </button>
         ) : (
           <CashOfferTile amount={proposal.cashAmount} />
         )}
         <div className="font-serif italic text-lg" style={{ color: 'var(--ink-soft)' }}>for</div>
         {proposal.targetBike ? (
-          <div className="flex-1 h-20 overflow-hidden relative">
+          <button
+            type="button"
+            onClick={() => setDetailBike(proposal.targetBike)}
+            className="flex-1 h-20 overflow-hidden relative text-left"
+          >
             <img src={photoForBike(proposal.targetBike)} alt={proposal.targetBike.title} className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 flex items-end p-1.5 text-white text-xs font-medium truncate" style={{ background: 'linear-gradient(to top, rgba(14,16,20,0.8), transparent 65%)' }}>{proposal.targetBike.title}</div>
-          </div>
+          </button>
         ) : (
           <div className="flex-1 h-20 flex flex-col items-center justify-center" style={{ backgroundColor: 'var(--accent-soft)' }}>
             <span className="text-[10px] uppercase tracking-[0.08em] text-center px-1" style={{ color: 'var(--ink-soft)' }}>Listing removed</span>
           </div>
         )}
       </div>
+
+      <BikeDetailModal bike={detailBike} onClose={() => setDetailBike(null)} />
 
       <p className="text-sm mb-1" style={{ color: 'var(--ink)' }}>
         {proposal.myBike
