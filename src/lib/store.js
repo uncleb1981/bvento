@@ -228,17 +228,42 @@ export async function getSentProposals(userId) {
 
 export async function addProposal({ fromUserId, targetBike, myBike, cashAmount, cashDirection, message }) {
   const supabase = getSupabase();
-  const { error } = await supabase.from('trade_proposals').insert({
-    from_user_id: fromUserId,
-    to_user_id: targetBike.ownerId,
-    my_bike_id: myBike?.id ?? null,
-    target_bike_id: targetBike.id,
-    cash_amount: cashAmount,
-    cash_direction: cashDirection,
-    message,
-    status: 'pending',
-  });
+  const { data, error } = await supabase
+    .from('trade_proposals')
+    .insert({
+      from_user_id: fromUserId,
+      to_user_id: targetBike.ownerId,
+      my_bike_id: myBike?.id ?? null,
+      target_bike_id: targetBike.id,
+      cash_amount: cashAmount,
+      cash_direction: cashDirection,
+      message,
+      status: 'pending',
+    })
+    .select('id')
+    .single();
   if (error) throw error;
+
+  // Best-effort email to the listing owner — this should never block the
+  // offer itself from going through.
+  try {
+    const { data: rows } = await supabase.rpc('get_proposal_notification_info', { p_proposal_id: data.id });
+    const info = rows?.[0];
+    if (info) {
+      await fetch('/api/notify-proposal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientEmail: info.recipient_email,
+          recipientName: info.recipient_name,
+          proposerName: info.proposer_name,
+          bikeTitle: info.target_bike_title,
+        }),
+      });
+    }
+  } catch {
+    // non-critical
+  }
 }
 
 export async function declineProposal(proposalId) {

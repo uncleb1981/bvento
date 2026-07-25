@@ -392,3 +392,50 @@ end;
 $$;
 
 grant execute on function leave_chat(uuid) to authenticated;
+
+-- ── Proposal email notification lookup (2026-07-24) ─────────────────────────
+-- profiles is publicly readable, so it can't hold email addresses — this
+-- reads the recipient's email out of auth.users (not directly queryable by
+-- clients) so the app can email them when someone proposes a trade on their
+-- listing. Restricted to the proposer looking up their own just-created
+-- proposal.
+create or replace function get_proposal_notification_info(p_proposal_id uuid)
+returns table (
+  recipient_email text,
+  recipient_name text,
+  proposer_name text,
+  target_bike_title text
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_proposal trade_proposals%rowtype;
+begin
+  select * into v_proposal from trade_proposals where id = p_proposal_id;
+
+  if v_proposal.id is null then
+    raise exception 'Proposal not found.';
+  end if;
+
+  if auth.uid() is distinct from v_proposal.from_user_id then
+    raise exception 'Not authorized.';
+  end if;
+
+  return query
+    select
+      u.email,
+      coalesce(rp.name, 'Rider'),
+      coalesce(fp.name, 'Rider'),
+      b.title
+    from trade_proposals tp
+    join auth.users u on u.id = tp.to_user_id
+    join profiles rp on rp.id = tp.to_user_id
+    join profiles fp on fp.id = tp.from_user_id
+    left join bikes b on b.id = tp.target_bike_id
+    where tp.id = p_proposal_id;
+end;
+$$;
+
+grant execute on function get_proposal_notification_info(uuid) to authenticated;
