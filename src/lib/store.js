@@ -245,12 +245,13 @@ export async function addProposal({ fromUserId, targetBike, myBike, cashAmount, 
   if (error) throw error;
 
   // Best-effort email to the listing owner — this should never block the
-  // offer itself from going through.
+  // offer itself from going through, but we do want to know if it breaks.
   try {
-    const { data: rows } = await supabase.rpc('get_proposal_notification_info', { p_proposal_id: data.id });
+    const { data: rows, error: rpcError } = await supabase.rpc('get_proposal_notification_info', { p_proposal_id: data.id });
+    if (rpcError) throw rpcError;
     const info = rows?.[0];
     if (info) {
-      await fetch('/api/notify-proposal', {
+      const res = await fetch('/api/notify-proposal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -260,9 +261,12 @@ export async function addProposal({ fromUserId, targetBike, myBike, cashAmount, 
           bikeTitle: info.target_bike_title,
         }),
       });
+      if (!res.ok) console.error('notify-proposal request failed', res.status, await res.text());
+    } else {
+      console.error('get_proposal_notification_info returned no rows for proposal', data.id);
     }
-  } catch {
-    // non-critical
+  } catch (err) {
+    console.error('Failed to send proposal notification email:', err);
   }
 }
 
