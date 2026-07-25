@@ -425,7 +425,7 @@ begin
 
   return query
     select
-      u.email,
+      u.email::text,
       coalesce(rp.name, 'Rider'),
       coalesce(fp.name, 'Rider'),
       b.title
