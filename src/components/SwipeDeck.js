@@ -4,16 +4,19 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import BikeCard from './BikeCard';
 import ProposeTradeModal from './ProposeTradeModal';
+import { displayName } from '@/lib/profileName';
 
 const SWIPE_THRESHOLD = 120;
+const PRIVACY_SEEN_KEY = 'bvento_privacy_notice_seen';
 
-export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, onRequireAuth, resumeBikeId }) {
+export default function SwipeDeck({ bikes, myBikes, authed, userName, onPass, onPropose, onRequireAuth, resumeBikeId }) {
   const [cards, setCards] = useState(bikes);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [pendingTarget, setPendingTarget] = useState(null);
   const [sentTarget, setSentTarget] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showPrivacyNotice, setShowPrivacyNotice] = useState(false);
   const startX = useRef(0);
   const resumedRef = useRef(false);
 
@@ -73,8 +76,16 @@ export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, o
       onRequireAuth(topCard);
     } else {
       setDragX(0);
+      if (typeof window !== 'undefined' && !localStorage.getItem(PRIVACY_SEEN_KEY)) {
+        setShowPrivacyNotice(true);
+      }
       setPendingTarget(topCard);
     }
+  }
+
+  function handleAcknowledgePrivacy() {
+    if (typeof window !== 'undefined') localStorage.setItem(PRIVACY_SEEN_KEY, 'true');
+    setShowPrivacyNotice(false);
   }
 
   async function handleConfirm(offer) {
@@ -93,6 +104,7 @@ export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, o
 
   function handleCancelProposal() {
     setPendingTarget(null);
+    setShowPrivacyNotice(false);
     setDragX(0);
   }
 
@@ -156,7 +168,15 @@ export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, o
         </div>
       )}
 
-      {pendingTarget && (
+      {pendingTarget && showPrivacyNotice && (
+        <PrivacyNoticeModal
+          name={displayName(userName)}
+          onCancel={handleCancelProposal}
+          onContinue={handleAcknowledgePrivacy}
+        />
+      )}
+
+      {pendingTarget && !showPrivacyNotice && (
         <ProposeTradeModal
           targetBike={pendingTarget}
           myBikes={myBikes}
@@ -169,6 +189,36 @@ export default function SwipeDeck({ bikes, myBikes, authed, onPass, onPropose, o
       {sentTarget && (
         <OfferSentModal targetBike={sentTarget} onClose={() => setSentTarget(null)} />
       )}
+    </div>
+  );
+}
+
+function PrivacyNoticeModal({ name, onCancel, onContinue }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
+      <div className="rounded-t-2xl sm:rounded-2xl p-7 max-w-md w-full animate-pop-in text-center" style={{ backgroundColor: 'var(--surface)' }}>
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+          style={{ backgroundColor: 'var(--accent)' }}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        </div>
+        <h2 className="font-serif text-2xl mb-2" style={{ color: 'var(--ink)' }}>Before you send this offer</h2>
+        <p className="text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
+          Your email address is never shared with other riders.
+        </p>
+        <p className="text-sm mb-4" style={{ color: 'var(--ink-soft)' }}>
+          The name shown to them will be <strong style={{ color: 'var(--ink)' }}>{name}</strong>. You can change this anytime from your Profile page.
+        </p>
+        <div className="flex gap-3">
+          <button onClick={onCancel} className="flex-1 py-3 font-medium" style={{ color: 'var(--ink-soft)', border: '1px solid var(--border)' }}>
+            Cancel
+          </button>
+          <button onClick={onContinue} className="flex-1 py-3 font-medium text-white" style={{ backgroundColor: 'var(--ink)' }}>
+            Continue
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

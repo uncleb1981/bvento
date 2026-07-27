@@ -88,6 +88,7 @@ export default function DiscoverClient({ initialBikes }) {
           bikes={bikes}
           myBikes={myBikes}
           authed={!!user}
+          userName={user?.name}
           onPass={handlePass}
           onPropose={handlePropose}
           onRequireAuth={handleRequireAuth}
