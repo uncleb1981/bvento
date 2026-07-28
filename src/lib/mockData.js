@@ -32,10 +32,10 @@ export function photoForBike(bike) {
 }
 
 // Descriptive alt text for image search / accessibility, e.g.
-// "Used Good Road bike for sale in Bentonville, AR — Trek Marlin 7".
+// "Good Road bike for sale in Bentonville, AR — Trek Marlin 7".
 export function altForBike(bike) {
-  if (!bike) return 'Used bike for sale';
+  if (!bike) return 'Bike for sale';
   const city = bike.city?.trim();
   const location = city ? (/,\s*AR$/i.test(city) ? city : `${city}, AR`) : 'Northwest Arkansas';
-  return `Used ${bike.condition} ${bike.type} bike for sale in ${location} — ${bike.title}`;
+  return `${bike.condition} ${bike.type} bike for sale in ${location} — ${bike.title}`;
 }

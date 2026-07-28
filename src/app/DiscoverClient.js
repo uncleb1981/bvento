@@ -74,7 +74,7 @@ export default function DiscoverClient({ initialBikes }) {
       <div className="text-center mb-2 sm:mb-6">
         <h1 className="font-serif text-3xl sm:text-5xl" style={{ color: 'var(--ink)' }}>Swipe to Trade. Post to Sell.</h1>
         <p className="text-sm sm:text-base mt-3 max-w-lg mx-auto" style={{ color: 'var(--ink-soft)' }}>
-          Buy, sell, and trade used bikes with real riders in Bentonville, Rogers, Springdale &amp; Fayetteville, AR.
+          Buy, sell, and trade bikes with real riders in Bentonville, Rogers, Springdale &amp; Fayetteville, AR.
         </p>
       </div>
       {error && <p className="text-center text-sm mb-6" style={{ color: '#8A2A1F' }}>{error}</p>}
@@ -107,7 +107,7 @@ const FAQ_ITEMS = [
     answer: 'Swipe right on a bike you want, then either offer one of your own bikes (with cash added to balance any difference in value) or make a cash-only offer. If the owner accepts, you get a chat thread to work out the details.',
   },
   {
-    question: 'Can I just buy a used bike instead of trading?',
+    question: 'Can I just buy a bike instead of trading?',
     answer: 'Yes — a cash-only offer works exactly like a purchase. You don’t need to own a bike yourself to make an offer.',
   },
   {
