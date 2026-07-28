@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono, Instrument_Serif, Fraunces } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
@@ -74,6 +75,7 @@ export default function RootLayout({ children }) {
         <Navbar />
         <main className="flex-1 pb-20 sm:pb-0">{children}</main>
         <BottomNav />
+        <Analytics />
         <footer className="hidden sm:block border-t mt-12 py-10" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
           <div className="max-w-6xl mx-auto px-4 text-center">
             <div className="font-serif italic text-2xl mb-1" style={{ color: 'var(--ink)' }}>bvento</div>
