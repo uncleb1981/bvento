@@ -40,20 +40,22 @@ export async function POST(request) {
 
   if (process.env.RESEND_API_KEY) {
     try {
-      await fetch('https://api.resend.com/emails', {
+      const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'bvento Feedback <onboarding@resend.dev>',
+          from: 'bvento Feedback <notifications@bvento.com>',
           to: FEEDBACK_TO,
           subject: 'New bvento feedback',
           text: `${trimmedMessage}\n\n— from: ${trimmedContact || 'anonymous'}`,
         }),
       });
-    } catch {
+      if (!res.ok) console.error('Resend rejected feedback email:', res.status, await res.text());
+    } catch (err) {
+      console.error('Failed to reach Resend for feedback email:', err);
       // The submission is already saved in the feedback table either way —
       // email delivery failing shouldn't fail the request for the visitor.
     }

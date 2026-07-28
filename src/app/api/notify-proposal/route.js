@@ -20,20 +20,22 @@ export async function POST(request) {
   }
 
   try {
-    await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'bvento <onboarding@resend.dev>',
+        from: 'bvento <notifications@bvento.com>',
         to: recipientEmail,
         subject: `${proposerName} wants to trade for your ${bikeTitle || 'bike'}`,
         html: `<p>Hi ${recipientName},</p><p><strong>${proposerName}</strong> just proposed a trade for your listing${bikeTitle ? ` &mdash; <strong>${bikeTitle}</strong>` : ''} on bvento.</p><p><a href="https://bvento.com/inbox?tab=Received">View the offer</a></p>`,
       }),
     });
-  } catch {
+    if (!res.ok) console.error('Resend rejected proposal notification email:', res.status, await res.text());
+  } catch (err) {
+    console.error('Failed to reach Resend for proposal notification email:', err);
     // Non-critical — the proposal was already saved either way.
   }
 
