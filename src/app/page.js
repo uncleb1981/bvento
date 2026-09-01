@@ -1,13 +1,20 @@
 import WeekendChart from './WeekendChart';
 import FootTrafficZones from '@/components/FootTrafficZones';
+import { WEEKENDS } from './footTrafficModel';
 
 export const metadata = {
   title: 'Bentonville Foot Traffic Forecast — bvento',
   description:
-    'An hour-by-hour foot traffic forecast for downtown Bentonville, AR — built from public event data on First Friday, the farmers market, Trifest for MS, and Crystal Bridges.',
+    'An hour-by-hour foot traffic forecast for downtown Bentonville, AR, for food trucks, canvassers, and anyone who needs to meet people — built from public event data on First Friday, the farmers market, Trifest for MS, and Crystal Bridges.',
 };
 
 const EVENTS = [
+  {
+    when: 'Thu 6–8pm',
+    name: 'Live at the Pavilion + Pickin’ on the Square',
+    detail: 'Recurring weekly draw, no published attendance figure',
+    tier: 'estimated',
+  },
   {
     when: 'Fri 5–9pm',
     name: 'First Friday Live',
@@ -79,32 +86,33 @@ function Chip({ tier }) {
 export default function HomePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16">
-      <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--ink-soft)' }}>
-        Fri Sep 4 – Sun Sep 6, 2026
-      </p>
-      <h1 className="text-3xl sm:text-4xl mt-2 mb-5" style={{ color: 'var(--ink)' }}>
-        <span className="font-serif italic">Bentonville</span>{' '}
-        <span className="font-medium">Foot Traffic Forecast</span>
+      <h1 className="text-3xl sm:text-4xl font-medium mt-2 mb-5" style={{ color: 'var(--ink)' }}>
+        Bentonville Foot Traffic Forecast
       </h1>
 
-      <section className="mb-6">
-        <div
-          className="rounded-2xl p-3 animate-pop-in"
-          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
-        >
-          <div style={{ height: 300, position: 'relative' }}>
-            <WeekendChart />
-          </div>
-          <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-            <FootTrafficZones />
-          </div>
-        </div>
-      </section>
-
-      <p className="text-sm leading-relaxed max-w-md mb-8" style={{ color: 'var(--ink-soft)' }}>
-        Built for local businesses planning staffing, inventory, and promotions around the
-        busiest times.
+      <p className="text-sm leading-relaxed max-w-md mb-6" style={{ color: 'var(--ink-soft)' }}>
+        Know where downtown fills up, hour by hour — built for food trucks, canvassers, and
+        anyone who needs to meet people, not just sell to them.
       </p>
+
+      {WEEKENDS.map((weekend, i) => (
+        <section key={weekend.id} className={i === 0 ? 'mb-6' : 'mb-8'}>
+          <div
+            className="rounded-2xl p-3"
+            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+          >
+            <h2 className="font-medium px-1 pt-1 pb-2" style={{ color: 'var(--ink)' }}>
+              {weekend.dateRange}
+            </h2>
+            <div style={{ height: 300, position: 'relative' }}>
+              <WeekendChart events={weekend.events} weekendLabel={weekend.dateRange} />
+            </div>
+            <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+              <FootTrafficZones events={weekend.events} />
+            </div>
+          </div>
+        </section>
+      ))}
 
       <section className="mb-8">
         <h2 className="font-medium mb-3" style={{ color: 'var(--ink)' }}>What&apos;s driving the foot traffic</h2>
@@ -127,8 +135,8 @@ export default function HomePage() {
       </section>
 
       <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>
-        Want a foot traffic forecast for your own event or business? This is the first
-        Northwest Arkansas forecast from bvento — more coming soon.
+        Want a foot traffic forecast for your own event, campaign, or business? This is the
+        first Northwest Arkansas forecast from bvento — more coming soon.
       </p>
 
       <p className="text-[11px] mt-6 pt-4" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>

@@ -8,18 +8,18 @@ function heatColor(intensity) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-function buildZones() {
-  const peakIdx = peakHourIndex();
+function buildZones(events) {
+  const peakIdx = peakHourIndex(events);
   const zones = Object.values(LOCATIONS).map((name) => ({
     name,
-    value: Math.round(hourlyByLocation(name)[peakIdx]),
+    value: Math.round(hourlyByLocation(events, name)[peakIdx]),
   }));
   zones.sort((a, b) => b.value - a.value);
   return { zones, peakIdx };
 }
 
-export default function FootTrafficZones() {
-  const { zones } = buildZones();
+export default function FootTrafficZones({ events }) {
+  const { zones } = buildZones(events);
   const max = Math.max(...zones.map((z) => z.value));
 
   return (
