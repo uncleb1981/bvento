@@ -48,6 +48,30 @@ export const WEEKENDS = [
       { name: 'Crystal Bridges Sunday (exhibit opening)', peak: 61, val: 1100, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
     ],
   },
+  {
+    id: 'sep18',
+    dateRange: 'Thu Sep 17 – Sun Sep 20, 2026',
+    events: [
+      // Live at the Pavilion, Thursday evening on the Square.
+      { name: 'Live at the Pavilion', peak: 7, val: 350, sigma: 1.3, location: LOCATIONS.SQUARE, chartLabel: 'Live at the Pavilion' },
+      { name: 'Afternoon baseline', peak: 14, val: 550, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
+      { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+    ],
+  },
+  {
+    id: 'sep25',
+    dateRange: 'Thu Sep 24 – Sun Sep 27, 2026',
+    events: [
+      // Live at the Pavilion, Thursday evening on the Square.
+      { name: 'Live at the Pavilion', peak: 7, val: 350, sigma: 1.3, location: LOCATIONS.SQUARE, chartLabel: 'Live at the Pavilion' },
+      { name: 'Afternoon baseline', peak: 14, val: 550, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
+      { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+    ],
+  },
 ];
 
 function gaussianAt(i, event) {
