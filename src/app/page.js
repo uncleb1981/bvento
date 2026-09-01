@@ -1,4 +1,5 @@
 import WeekendChart from './WeekendChart';
+import FootTrafficZones from '@/components/FootTrafficZones';
 
 export const metadata = {
   title: 'Bentonville Foot Traffic Forecast — bvento',
@@ -81,36 +82,29 @@ export default function HomePage() {
       <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--ink-soft)' }}>
         Northwest Arkansas · Fri Sep 4 – Sun Sep 6, 2026
       </p>
-      <h1 className="font-serif italic text-4xl mt-2 mb-3" style={{ color: 'var(--ink)' }}>
+      <h1 className="font-serif italic text-3xl sm:text-4xl mt-2 mb-5" style={{ color: 'var(--ink)' }}>
         Bentonville Foot Traffic Forecast
       </h1>
-      <p className="text-sm leading-relaxed max-w-md mb-6" style={{ color: 'var(--ink-soft)' }}>
+
+      <section className="mb-6">
+        <div
+          className="rounded-2xl p-3 animate-pop-in"
+          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+        >
+          <div style={{ height: 300, position: 'relative' }}>
+            <WeekendChart />
+          </div>
+          <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+            <FootTrafficZones />
+          </div>
+        </div>
+      </section>
+
+      <p className="text-sm leading-relaxed max-w-md mb-8" style={{ color: 'var(--ink-soft)' }}>
         An hour-by-hour foot traffic forecast for downtown — built for local businesses planning
         staffing, inventory, and promotions around the busiest times. Based on public event
         schedules, not measured counts.
       </p>
-
-      <div
-        className="rounded-2xl px-6 py-7 mb-8 text-center"
-        style={{ backgroundColor: 'var(--ink)' }}
-      >
-        <div
-          className="text-[11px] uppercase tracking-[0.15em] mb-3"
-          style={{ color: 'var(--accent)' }}
-        >
-          Peak foot traffic
-        </div>
-        <div className="font-serif italic text-6xl sm:text-7xl leading-none" style={{ color: '#F6F3EC' }}>
-          ~4,700
-        </div>
-        <div className="text-sm mt-3" style={{ color: '#F6F3EC' }}>
-          Friday, 7–8pm downtown
-        </div>
-        <div className="text-xs mt-3 max-w-xs mx-auto" style={{ color: 'var(--border)' }}>
-          First Friday and the Trifest kids&apos; race land at the same time — that&apos;s when foot
-          traffic peaks downtown.
-        </div>
-      </div>
 
       <div className="grid grid-cols-3 gap-2.5 mb-8">
         {[
@@ -125,29 +119,6 @@ export default function HomePage() {
           </div>
         ))}
       </div>
-
-      <section className="mb-8">
-        <h2 className="font-medium mb-1" style={{ color: 'var(--ink)' }}>Hour by hour</h2>
-        <p className="text-xs mb-3" style={{ color: 'var(--ink-soft)' }}>
-          Estimated foot traffic downtown at any given time, from Friday noon to Sunday 10pm. Scroll
-          to see the whole weekend.
-        </p>
-        <div
-          className="rounded-2xl p-3 overflow-x-auto"
-          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', WebkitOverflowScrolling: 'touch' }}
-        >
-          <div style={{ width: 900, height: 280, position: 'relative' }}>
-            <WeekendChart />
-          </div>
-        </div>
-        <p className="text-[10px] text-right mt-1" style={{ color: 'var(--ink-soft)' }}>swipe for Sat &amp; Sun →</p>
-        <div className="flex flex-wrap gap-4 text-xs mt-3" style={{ color: 'var(--ink-soft)' }}>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ backgroundColor: '#14171F' }} />Friday</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ backgroundColor: '#5B5F6B' }} />Saturday</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ backgroundColor: '#A39C8A' }} />Sunday</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ backgroundColor: 'var(--accent)' }} />Peak hour</span>
-        </div>
-      </section>
 
       <section className="mb-8">
         <h2 className="font-medium mb-3" style={{ color: 'var(--ink)' }}>What&apos;s driving the foot traffic</h2>
@@ -182,8 +153,8 @@ export default function HomePage() {
             three days, or how many people visit Crystal Bridges on a given day.
           </p>
           <p>
-            The hour-by-hour chart is a smoothed guess, not 59 separate counts. Overnight numbers are
-            just a low placeholder. And we only counted racers, not the friends and family watching.
+            The chart is a smoothed curve, not dozens of separate counts. Overnight numbers are just
+            a low placeholder. And we only counted racers, not the friends and family watching.
           </p>
         </div>
       </section>
