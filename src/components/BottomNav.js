@@ -21,7 +21,7 @@ const ICONS = {
 };
 
 const ITEMS = [
-  { href: '/', label: 'Discover', icon: 'discover' },
+  { href: '/discover', label: 'Discover', icon: 'discover' },
   { href: '/inbox', label: 'Inbox', icon: 'inbox' },
   { href: '/bikes/create', label: 'Post', icon: 'post' },
   { href: '/profile', label: 'Profile', icon: 'profile' },
@@ -29,7 +29,7 @@ const ITEMS = [
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const isWeekendPage = pathname?.startsWith('/weekend');
+  const isEventHome = pathname === '/';
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function BottomNav() {
     return () => { cancelled = true; clearInterval(poll); };
   }, []);
 
-  if (isWeekendPage) return null;
+  if (isEventHome) return null;
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 border-t z-40 pb-[env(safe-area-inset-bottom)]" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>

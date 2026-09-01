@@ -4,10 +4,10 @@ import { usePathname } from 'next/navigation';
 
 export default function MainArea({ children }) {
   const pathname = usePathname();
-  const isWeekendPage = pathname?.startsWith('/weekend');
+  const isEventHome = pathname === '/';
 
   return (
-    <main className={isWeekendPage ? 'flex-1' : 'flex-1 pb-20 sm:pb-0'}>
+    <main className={isEventHome ? 'flex-1' : 'flex-1 pb-20 sm:pb-0'}>
       {children}
     </main>
   );

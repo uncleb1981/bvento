@@ -15,7 +15,7 @@ export default function LoginPage() {
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') || '/';
+  const next = searchParams.get('next') || '/discover';
   const [email, setEmail] = useState('');
   const [phase, setPhase] = useState('input'); // input | google | sending | sent | error
   const [errorMsg, setErrorMsg] = useState('');

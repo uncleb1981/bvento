@@ -4,14 +4,14 @@ import { usePathname } from 'next/navigation';
 
 export default function SiteFooter() {
   const pathname = usePathname();
-  const isWeekendPage = pathname?.startsWith('/weekend');
+  const isEventHome = pathname === '/';
 
   return (
     <footer className="hidden sm:block border-t mt-12 py-10" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
       <div className="max-w-6xl mx-auto px-4 text-center">
         <div className="font-serif italic text-2xl mb-1" style={{ color: 'var(--ink)' }}>bvento</div>
         <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--ink-soft)' }}>
-          {isWeekendPage
+          {isEventHome
             ? 'Local happenings in Bentonville, Arkansas.'
             : 'Buy, sell, and trade bikes with local riders in Bentonville, Rogers, Springdale, and Fayetteville, Arkansas.'}
         </p>

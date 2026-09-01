@@ -9,7 +9,7 @@ import { getNotificationCount } from '@/lib/store';
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const isWeekendPage = pathname?.startsWith('/weekend');
+  const isEventHome = pathname === '/';
   const [authUser, setAuthUser] = useState(null);
   const [pendingCount, setPendingCount] = useState(0);
   const userIdRef = useRef(null);
@@ -63,15 +63,15 @@ export default function Navbar() {
         <Link href="/" className="flex-shrink-0 mr-1">
           <div className="flex flex-col leading-none">
             <span className="font-serif italic text-4xl tracking-tight" style={{ color: 'var(--ink)' }}>bvento</span>
-            {!isWeekendPage && (
+            {!isEventHome && (
               <span className="text-[10px] uppercase tracking-[0.18em] mt-0.5" style={{ color: 'var(--ink-soft)' }}>bike trading</span>
             )}
           </div>
         </Link>
 
-        {!isWeekendPage && (
+        {!isEventHome && (
           <div className="hidden sm:flex items-center gap-1 ml-6">
-            <Link href="/" className="px-3 py-2 text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>Discover</Link>
+            <Link href="/discover" className="px-3 py-2 text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>Discover</Link>
             <Link href="/inbox" className="relative px-3 py-2 text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>
               Inbox
               {pendingCount > 0 && (
@@ -84,7 +84,7 @@ export default function Navbar() {
           </div>
         )}
 
-        {!isWeekendPage && (
+        {!isEventHome && (
           <div className="flex items-center gap-4 ml-auto">
             <Link
               href="/bikes/create"
