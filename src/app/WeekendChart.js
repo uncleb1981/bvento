@@ -2,21 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
-
-const EVENTS = [
-  { peak: 2, val: 550, sigma: 3 },
-  { peak: 7, val: 4700, sigma: 1.3 },
-  { peak: 7, val: 600, sigma: 1 },
-  { peak: 25, val: 850, sigma: 2.5 },
-  { peak: 22, val: 3200, sigma: 1.8 },
-  { peak: 20, val: 750, sigma: 1 },
-  { peak: 49, val: 700, sigma: 2.5 },
-  { peak: 44, val: 420, sigma: 1 },
-];
+import { hourlyTotal, peakHourIndex, hourRangeLabel } from './footTrafficModel';
 
 // 10 buckets covering Fri noon (index 0) through Sun 10pm (index 58).
 // Each bucket takes the MAX of the hourly model within its window, so the
-// still using each bucket's max, so the true peak hour's value isn't diluted.
+// true peak hour's value isn't diluted.
 const BUCKETS = [
   { start: 0, end: 4, label: 'Fri 12p' },
   { start: 5, end: 8, label: '6p', mark: 'peak' },
@@ -30,18 +20,8 @@ const BUCKETS = [
   { start: 48, end: 58, label: '12p' },
 ];
 
-function hourlyValues() {
-  const values = [];
-  for (let i = 0; i < 59; i++) {
-    let v = 20;
-    for (const e of EVENTS) v += e.val * Math.exp(-((i - e.peak) ** 2) / (2 * e.sigma * e.sigma));
-    values.push(v);
-  }
-  return values;
-}
-
 function buildBuckets() {
-  const hourly = hourlyValues();
+  const hourly = hourlyTotal();
   return BUCKETS.map((b) => {
     let max = 0;
     for (let i = b.start; i <= b.end; i++) max = Math.max(max, hourly[i]);
@@ -58,6 +38,7 @@ export default function WeekendChart() {
     const labels = buckets.map((b) => b.label);
     const values = buckets.map((b) => b.value);
     const dayDividers = [1.5, 5.5]; // between Fri/Sat and Sat/Sun buckets
+    const peakTimeLabel = hourRangeLabel(peakHourIndex());
 
     const pointRadius = buckets.map((b) => (b.mark === 'peak' ? 6 : b.mark ? 4 : 0));
     const pointColor = buckets.map((b) => (b.mark === 'peak' ? '#B3431E' : '#14171F'));
@@ -95,7 +76,7 @@ export default function WeekendChart() {
             ctx.fillText('~' + b.value.toLocaleString(), x, y - 32);
             ctx.fillStyle = '#5B5F6B';
             ctx.font = '400 10px -apple-system, BlinkMacSystemFont, sans-serif';
-            ctx.fillText('Fri 7–8pm', x, y - 18);
+            ctx.fillText(peakTimeLabel, x, y - 18);
           } else {
             ctx.fillStyle = '#5B5F6B';
             ctx.font = '500 10px -apple-system, BlinkMacSystemFont, sans-serif';
@@ -155,7 +136,7 @@ export default function WeekendChart() {
   }, []);
 
   const peakValue = buildBuckets().find((b) => b.mark === 'peak')?.value ?? 0;
-  const ariaLabel = `Area chart of estimated foot traffic in downtown Bentonville from Friday September 4 noon to Sunday September 6 10pm, peaking at about ${peakValue.toLocaleString()} people Friday 7 to 8pm during First Friday Live and the Trifest youth triathlon, with smaller peaks Saturday morning for the farmers market and Sunday morning for the Trifest super sprint.`;
+  const ariaLabel = `Area chart of estimated foot traffic in downtown Bentonville from Friday September 4 noon to Sunday September 6 10pm, peaking at about ${peakValue.toLocaleString()} people ${hourRangeLabel(peakHourIndex())} during First Friday Live and the Trifest youth triathlon, with smaller peaks Saturday morning for the farmers market and Sunday morning for the Trifest super sprint.`;
 
   return <canvas ref={canvasRef} role="img" aria-label={ariaLabel} />;
 }
