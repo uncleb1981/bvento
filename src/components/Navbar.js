@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
 import { getNotificationCount } from '@/lib/store';
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isWeekendPage = pathname?.startsWith('/weekend');
   const [authUser, setAuthUser] = useState(null);
   const [pendingCount, setPendingCount] = useState(0);
   const userIdRef = useRef(null);
@@ -61,42 +63,48 @@ export default function Navbar() {
         <Link href="/" className="flex-shrink-0 mr-1">
           <div className="flex flex-col leading-none">
             <span className="font-serif italic text-4xl tracking-tight" style={{ color: 'var(--ink)' }}>bvento</span>
-            <span className="text-[10px] uppercase tracking-[0.18em] mt-0.5" style={{ color: 'var(--ink-soft)' }}>bike trading</span>
+            {!isWeekendPage && (
+              <span className="text-[10px] uppercase tracking-[0.18em] mt-0.5" style={{ color: 'var(--ink-soft)' }}>bike trading</span>
+            )}
           </div>
         </Link>
 
-        <div className="hidden sm:flex items-center gap-1 ml-6">
-          <Link href="/" className="px-3 py-2 text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>Discover</Link>
-          <Link href="/inbox" className="relative px-3 py-2 text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>
-            Inbox
-            {pendingCount > 0 && (
-              <span className="absolute top-0.5 right-0 w-3.5 h-3.5 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--accent)' }}>
-                {pendingCount}
-              </span>
-            )}
-          </Link>
-          <Link href="/profile" className="px-3 py-2 text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>Profile</Link>
-        </div>
-
-        <div className="flex items-center gap-4 ml-auto">
-          <Link
-            href="/bikes/create"
-            className="hidden sm:flex items-center gap-1.5 text-white px-4 py-2 text-xs uppercase tracking-[0.12em] font-medium transition-colors"
-            style={{ backgroundColor: 'var(--ink)' }}
-          >
-            Post a Bike
-          </Link>
-
-          {authUser ? (
-            <button onClick={handleSignOut} className="text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>
-              Sign out
-            </button>
-          ) : (
-            <Link href="/login" className="text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--accent)' }}>
-              Log in
+        {!isWeekendPage && (
+          <div className="hidden sm:flex items-center gap-1 ml-6">
+            <Link href="/" className="px-3 py-2 text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>Discover</Link>
+            <Link href="/inbox" className="relative px-3 py-2 text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>
+              Inbox
+              {pendingCount > 0 && (
+                <span className="absolute top-0.5 right-0 w-3.5 h-3.5 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--accent)' }}>
+                  {pendingCount}
+                </span>
+              )}
             </Link>
-          )}
-        </div>
+            <Link href="/profile" className="px-3 py-2 text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>Profile</Link>
+          </div>
+        )}
+
+        {!isWeekendPage && (
+          <div className="flex items-center gap-4 ml-auto">
+            <Link
+              href="/bikes/create"
+              className="hidden sm:flex items-center gap-1.5 text-white px-4 py-2 text-xs uppercase tracking-[0.12em] font-medium transition-colors"
+              style={{ backgroundColor: 'var(--ink)' }}
+            >
+              Post a Bike
+            </Link>
+
+            {authUser ? (
+              <button onClick={handleSignOut} className="text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--ink-soft)' }}>
+                Sign out
+              </button>
+            ) : (
+              <Link href="/login" className="text-xs uppercase tracking-[0.12em] font-medium" style={{ color: 'var(--accent)' }}>
+                Log in
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

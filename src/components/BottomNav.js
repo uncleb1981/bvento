@@ -29,6 +29,7 @@ const ITEMS = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const isWeekendPage = pathname?.startsWith('/weekend');
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
@@ -50,6 +51,8 @@ export default function BottomNav() {
     const poll = setInterval(refreshCount, 5000);
     return () => { cancelled = true; clearInterval(poll); };
   }, []);
+
+  if (isWeekendPage) return null;
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 border-t z-40 pb-[env(safe-area-inset-bottom)]" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
