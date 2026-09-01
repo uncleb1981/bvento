@@ -1,9 +1,9 @@
 import WeekendChart from './WeekendChart';
 
 export const metadata = {
-  title: 'This Weekend in Bentonville — bvento',
+  title: 'Bentonville Foot Traffic Forecast — bvento',
   description:
-    'An hour-by-hour look at where the crowds are in downtown Bentonville, AR this weekend — First Friday, the farmers market, Trifest for MS, and Crystal Bridges.',
+    'An hour-by-hour foot traffic forecast for downtown Bentonville, AR — built from public event data on First Friday, the farmers market, Trifest for MS, and Crystal Bridges.',
 };
 
 const EVENTS = [
@@ -82,11 +82,12 @@ export default function HomePage() {
         Northwest Arkansas · Fri Sep 4 – Sun Sep 6, 2026
       </p>
       <h1 className="font-serif italic text-4xl mt-2 mb-3" style={{ color: 'var(--ink)' }}>
-        This weekend in Bentonville
+        Bentonville Foot Traffic Forecast
       </h1>
       <p className="text-sm leading-relaxed max-w-md mb-6" style={{ color: 'var(--ink-soft)' }}>
-        See where the crowds will be, hour by hour. Based on public event schedules — not actual
-        foot-traffic counts.
+        An hour-by-hour foot traffic forecast for downtown — built for local businesses planning
+        staffing, inventory, and promotions around the busiest times. Based on public event
+        schedules, not measured counts.
       </p>
 
       <div
@@ -97,7 +98,7 @@ export default function HomePage() {
           className="text-[11px] uppercase tracking-[0.15em] mb-3"
           style={{ color: 'var(--accent)' }}
         >
-          The busiest hour all weekend
+          Peak foot traffic
         </div>
         <div className="font-serif italic text-6xl sm:text-7xl leading-none" style={{ color: '#F6F3EC' }}>
           ~4,700
@@ -106,8 +107,8 @@ export default function HomePage() {
           Friday, 7–8pm downtown
         </div>
         <div className="text-xs mt-3 max-w-xs mx-auto" style={{ color: 'var(--border)' }}>
-          First Friday and the Trifest kids&apos; race land at the same time — that&apos;s when the
-          crowd peaks.
+          First Friday and the Trifest kids&apos; race land at the same time — that&apos;s when foot
+          traffic peaks downtown.
         </div>
       </div>
 
@@ -128,8 +129,8 @@ export default function HomePage() {
       <section className="mb-8">
         <h2 className="font-medium mb-1" style={{ color: 'var(--ink)' }}>Hour by hour</h2>
         <p className="text-xs mb-3" style={{ color: 'var(--ink-soft)' }}>
-          How many people are downtown at any given time, from Friday noon to Sunday 10pm. Scroll to
-          see the whole weekend.
+          Estimated foot traffic downtown at any given time, from Friday noon to Sunday 10pm. Scroll
+          to see the whole weekend.
         </p>
         <div
           className="rounded-2xl p-3 overflow-x-auto"
@@ -149,7 +150,7 @@ export default function HomePage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="font-medium mb-3" style={{ color: 'var(--ink)' }}>What&apos;s happening when</h2>
+        <h2 className="font-medium mb-3" style={{ color: 'var(--ink)' }}>What&apos;s driving the foot traffic</h2>
         <div style={{ borderTop: '1px solid var(--border)' }}>
           {EVENTS.map((e) => (
             <div key={e.name} className="flex items-baseline justify-between gap-3 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
@@ -187,8 +188,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      <p className="text-[11px] mt-8 pt-4" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>
-        A planning estimate, not an actual count.
+      <div
+        className="rounded-2xl p-4 mt-8 text-center"
+        style={{ backgroundColor: 'var(--accent-soft)', border: '1px solid var(--border)' }}
+      >
+        <p className="text-sm font-medium" style={{ color: 'var(--ink)' }}>
+          Want a foot traffic forecast for your own event or business?
+        </p>
+        <p className="text-xs mt-1" style={{ color: 'var(--ink-soft)' }}>
+          This is the first Northwest Arkansas forecast from bvento — more coming soon.
+        </p>
+      </div>
+
+      <p className="text-[11px] mt-4 pt-4" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>
+        A foot traffic planning estimate, not a measured count.
       </p>
     </div>
   );

@@ -63,9 +63,9 @@ export default function Navbar() {
         <Link href="/" className="flex-shrink-0 mr-1">
           <div className="flex flex-col leading-none">
             <span className="font-serif italic text-4xl tracking-tight" style={{ color: 'var(--ink)' }}>bvento</span>
-            {!isEventHome && (
-              <span className="text-[10px] uppercase tracking-[0.18em] mt-0.5" style={{ color: 'var(--ink-soft)' }}>bike trading</span>
-            )}
+            <span className="text-[10px] uppercase tracking-[0.18em] mt-0.5" style={{ color: 'var(--ink-soft)' }}>
+              {isEventHome ? 'foot traffic intelligence' : 'bike trading'}
+            </span>
           </div>
         </Link>
 
