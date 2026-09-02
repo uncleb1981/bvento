@@ -56,7 +56,7 @@ export const WEEKENDS = [
       { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
       { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
       { name: 'Trifest Sprint', peak: 32, val: 750, sigma: 1, location: LOCATIONS.AQUATIC_CENTER },
-      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Crystal Bridges' },
       { name: 'Trifest Super Sprint', peak: 56, val: 420, sigma: 1, location: LOCATIONS.AQUATIC_CENTER, chartLabel: 'Trifest' },
       ...weeklyVenueTraffic(),
     ],
@@ -73,7 +73,7 @@ export const WEEKENDS = [
       // "Grandma Moses: A Good Day's Work" opens at Crystal Bridges Sep 12 -
       // modeled as an elevated bump over the normal weekend baseline.
       { name: 'Crystal Bridges Saturday (exhibit opening)', peak: 37, val: 1500, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Grandma Moses opens' },
-      { name: 'Crystal Bridges Sunday (exhibit opening)', peak: 61, val: 1100, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday (exhibit opening)', peak: 61, val: 1100, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Grandma Moses' },
       // Noon2Moon endurance MTB race weekend at Coler, Fri 9/11-Sat 9/12:
       // Friday is kids' ride camp + the Hot Lap, Saturday is the main
       // 3-hour/6-hour race - on top of Coler's normal weekend ridership.
@@ -92,7 +92,7 @@ export const WEEKENDS = [
       { name: 'Afternoon baseline', peak: 14, val: 550, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES },
       { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
       { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
-      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Crystal Bridges' },
       ...weeklyVenueTraffic(),
     ],
   },
@@ -106,7 +106,7 @@ export const WEEKENDS = [
       { name: 'Afternoon baseline', peak: 14, val: 550, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES },
       { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
       { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
-      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Crystal Bridges' },
       // Bentonville Tigers home game, Fri 9/25 7pm - Tiger Stadium seats
       // 6,000-7,000; Har-Ber is a solid conference draw, not a marquee rival.
       { name: 'Bentonville Tigers vs Har-Ber', peak: 20, val: 4200, sigma: 1.5, location: LOCATIONS.TIGER_STADIUM, chartLabel: 'Tigers vs Har-Ber' },
@@ -141,7 +141,7 @@ export const WEEKENDS = [
       { name: 'Square 2 Square finish', peak: 35, val: 300, sigma: 2, location: LOCATIONS.SQUARE, chartLabel: 'Square 2 Square' },
       // Benton County Fair's last day, Sat 10/3.
       { name: 'Benton County Fair (closing day)', peak: 42, val: 1800, sigma: 2, location: LOCATIONS.FAIRGROUNDS, chartLabel: 'Fair closing day' },
-      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Crystal Bridges' },
       ...weeklyVenueTraffic(),
     ],
   },
@@ -158,7 +158,7 @@ export const WEEKENDS = [
       { name: 'Afternoon baseline', peak: 14, val: 550, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES },
       { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
       { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
-      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Crystal Bridges' },
       ...weeklyVenueTraffic(),
     ],
   },
@@ -177,7 +177,7 @@ export const WEEKENDS = [
       // ~2,800 riders (2025 figure, likely similar for 2026), plus the
       // "Gravel Rave" evening festival after - modeled as an evening peak.
       { name: 'Big Sugar Gravel', peak: 42, val: 2800, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Big Sugar Gravel' },
-      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Crystal Bridges' },
       ...weeklyVenueTraffic(),
     ],
   },
@@ -191,7 +191,7 @@ export const WEEKENDS = [
       { name: 'Bentonville Tigers vs Rogers', peak: 20, val: 5000, sigma: 1.5, location: LOCATIONS.TIGER_STADIUM, chartLabel: 'Tigers vs Rogers' },
       { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
       { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
-      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Crystal Bridges' },
       ...weeklyVenueTraffic(),
     ],
   },
@@ -204,7 +204,7 @@ export const WEEKENDS = [
       { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
       // Last Saturday of the 2026 outdoor Farmers Market season.
       { name: 'Farmers Market (season finale)', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
-      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
+      { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Crystal Bridges' },
       ...weeklyVenueTraffic(),
     ],
   },

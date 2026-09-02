@@ -95,19 +95,27 @@ export default function WeekendChart({ events, weekendLabel }) {
 
         ctx.save();
         ctx.textAlign = 'center';
+        let lastLabelRight = -Infinity;
         buckets.forEach((b, i) => {
           if (!b.mark) return;
           const x = pixelAt(i);
           const y = scales.y.getPixelForValue(b.value);
-          if (b.mark === 'peak') {
-            ctx.fillStyle = '#B3431E';
-            ctx.font = '600 12px -apple-system, BlinkMacSystemFont, sans-serif';
-            ctx.fillText(b.label2 || 'Peak', x, y - 14);
-          } else {
-            ctx.fillStyle = '#5B5F6B';
-            ctx.font = '500 10px -apple-system, BlinkMacSystemFont, sans-serif';
-            ctx.fillText(b.mark, x, y - 12);
-          }
+          const isPeak = b.mark === 'peak';
+          const text = isPeak ? (b.label2 || 'Peak') : b.mark;
+          const baseOffset = isPeak ? 14 : 12;
+
+          ctx.font = isPeak
+            ? '600 12px -apple-system, BlinkMacSystemFont, sans-serif'
+            : '500 10px -apple-system, BlinkMacSystemFont, sans-serif';
+
+          // If this label's text would overlap the previous one horizontally
+          // (adjacent buckets can sit close together), push it up clear of it.
+          const halfWidth = ctx.measureText(text).width / 2;
+          const extraOffset = x - halfWidth < lastLabelRight ? 14 : 0;
+          lastLabelRight = x + halfWidth;
+
+          ctx.fillStyle = isPeak ? '#B3431E' : '#5B5F6B';
+          ctx.fillText(text, x, y - baseOffset - extraOffset);
         });
         ctx.restore();
       },

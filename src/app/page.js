@@ -3,7 +3,7 @@ import FootTrafficZones from '@/components/FootTrafficZones';
 import { WEEKENDS } from './footTrafficModel';
 
 export const metadata = {
-  title: 'Bentonville Surge Forecast — bvento',
+  title: 'Bentonville Crowd Surge Forecast — bvento',
   description:
     'Predictive pedestrian analytics for the Walmart vendor ecosystem — data-driven foot traffic forecasts across Bentonville’s key commercial zones, built for CPG brands timing product activations and launches around corporate commuter surges.',
 };
@@ -12,15 +12,27 @@ export default function HomePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16">
       <h1 className="text-3xl sm:text-4xl font-medium mt-2 mb-5" style={{ color: 'var(--ink)' }}>
-        Bentonville Surge Forecast
+        Bentonville Crowd Surge Forecast
       </h1>
 
-      <p className="text-sm leading-relaxed max-w-xl mb-6" style={{ color: 'var(--ink-soft)' }}>
-        Maximize retail impact with predictive pedestrian analytics built for the Walmart vendor
-        ecosystem. bvento.com delivers data-driven foot traffic forecasts across Bentonville's key
-        commercial zones, empowering CPG brands to perfectly time product activations,
-        experiential marketing, and high-impact launches around corporate commuter surges.
+      <p className="text-sm leading-relaxed max-w-xl mb-3" style={{ color: 'var(--ink-soft)' }}>
+        Predictive pedestrian analytics for the Walmart vendor ecosystem.
       </p>
+
+      <ul className="text-sm leading-relaxed max-w-xl mb-6 space-y-2">
+        <li className="flex gap-2" style={{ color: 'var(--ink-soft)' }}>
+          <span style={{ color: 'var(--accent)' }}>—</span>
+          <span>Data-driven foot traffic forecasts across Bentonville's key commercial zones</span>
+        </li>
+        <li className="flex gap-2" style={{ color: 'var(--ink-soft)' }}>
+          <span style={{ color: 'var(--accent)' }}>—</span>
+          <span>Time product activations and experiential marketing to the moments that matter</span>
+        </li>
+        <li className="flex gap-2" style={{ color: 'var(--ink-soft)' }}>
+          <span style={{ color: 'var(--accent)' }}>—</span>
+          <span>Plan high-impact launches around corporate commuter surges</span>
+        </li>
+      </ul>
 
       {WEEKENDS.map((weekend, i) => (
         <section key={weekend.id} className={i === 0 ? 'mb-6' : 'mb-8'}>
