@@ -1,4 +1,6 @@
-import { LOCATIONS, hourlyByLocation, peakHourIndex } from '@/app/footTrafficModel';
+import { LOCATIONS, hourlyByLocation, eventDateTimeLabel } from '@/app/footTrafficModel';
+
+const MIN_ZONE_VALUE = 1000;
 
 function heatColor(intensity) {
   // intensity 0-1 -> light cream through to full terracotta accent
@@ -8,18 +10,36 @@ function heatColor(intensity) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-function buildZones(events) {
-  const peakIdx = peakHourIndex(events);
-  const zones = Object.values(LOCATIONS).map((name) => ({
-    name,
-    value: Math.round(hourlyByLocation(events, name)[peakIdx]),
-  }));
-  zones.sort((a, b) => b.value - a.value);
-  return { zones, peakIdx };
+function argmax(series) {
+  let best = 0;
+  for (let i = 1; i < series.length; i++) if (series[i] > series[best]) best = i;
+  return best;
 }
 
-export default function FootTrafficZones({ events }) {
-  const { zones } = buildZones(events);
+// Each zone reports its OWN peak hour, not a single instant shared across
+// every zone - otherwise a dominant event elsewhere on the calendar (e.g. a
+// Friday-night football game) can wash out a zone whose peak lands at a
+// completely different hour (e.g. Saturday's farmers market on the Square).
+// Only zones whose peak tops MIN_ZONE_VALUE are shown - this heatmap is for
+// the crowds worth planning around, not routine ambient foot traffic.
+function buildZones(events, weekendStart) {
+  const zones = Object.values(LOCATIONS)
+    .map((name) => {
+      const series = hourlyByLocation(events, name);
+      const peakIdx = argmax(series);
+      return {
+        name,
+        value: Math.round(series[peakIdx]),
+        when: eventDateTimeLabel(weekendStart, peakIdx),
+      };
+    })
+    .filter((z) => z.value > MIN_ZONE_VALUE);
+  zones.sort((a, b) => b.value - a.value);
+  return zones;
+}
+
+export default function FootTrafficZones({ events, weekendStart }) {
+  const zones = buildZones(events, weekendStart);
   const max = Math.max(...zones.map((z) => z.value));
 
   return (
@@ -41,12 +61,20 @@ export default function FootTrafficZones({ events }) {
               >
                 {z.name}
               </p>
-              <p
-                className="font-medium text-lg mt-2"
-                style={{ color: dark ? '#F6F3EC' : 'var(--ink)' }}
-              >
-                ~{z.value.toLocaleString()}
-              </p>
+              <div>
+                <p
+                  className="font-medium text-lg mt-2"
+                  style={{ color: dark ? '#F6F3EC' : 'var(--ink)' }}
+                >
+                  ~{z.value.toLocaleString()}
+                </p>
+                <p
+                  className="text-[10px] mt-0.5"
+                  style={{ color: dark ? 'rgba(246,243,236,0.75)' : 'var(--ink-soft)' }}
+                >
+                  {z.when}
+                </p>
+              </div>
             </div>
           );
         })}

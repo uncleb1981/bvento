@@ -108,7 +108,7 @@ export default function HomePage() {
               <WeekendChart events={weekend.events} weekendLabel={weekend.dateRange} />
             </div>
             <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-              <FootTrafficZones events={weekend.events} />
+              <FootTrafficZones events={weekend.events} weekendStart={weekend.start} />
             </div>
           </div>
         </section>
