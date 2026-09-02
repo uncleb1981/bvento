@@ -12,6 +12,7 @@ export const LOCATIONS = {
   AMAZEUM: 'Scott Family Amazeum',
   COLER: 'Coler Mountain Bike Preserve',
   TIGER_STADIUM: 'Bentonville Tiger Stadium',
+  FAIRGROUNDS: 'Benton County Fairgrounds',
 };
 
 // Ambient downtown foot traffic with no specific driving event - counted
@@ -109,6 +110,16 @@ export const WEEKENDS = [
       // Bentonville Tigers home game, Fri 9/25 7pm - Tiger Stadium seats
       // 6,000-7,000; Har-Ber is a solid conference draw, not a marquee rival.
       { name: 'Bentonville Tigers vs Har-Ber', peak: 20, val: 4200, sigma: 1.5, location: LOCATIONS.TIGER_STADIUM, chartLabel: 'Tigers vs Har-Ber' },
+      // Zedd at the Momentary Green, same Friday night as the football game -
+      // gates 6:30pm, capacity ~4,000-5,000, likely near sellout for a headliner.
+      { name: 'Zedd at the Momentary', peak: 21, val: 4500, sigma: 1.3, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Zedd' },
+      // Benton County Fair opening weekend, Sep 25-27 - Midway, food, vendors,
+      // entertainment (Sunday is a lower-key Sensory Friendly Day, left out
+      // since it's designed to be quieter). ~20,000 total across the fair's
+      // full 9-day run; no per-day breakdown published, so these are our
+      // estimate of the opening weekend's share (typically the busiest days).
+      { name: 'Benton County Fair (Friday)', peak: 19, val: 1800, sigma: 1.5, location: LOCATIONS.FAIRGROUNDS, chartLabel: 'Benton County Fair' },
+      { name: 'Benton County Fair (Saturday)', peak: 42, val: 2800, sigma: 2, location: LOCATIONS.FAIRGROUNDS },
       ...weeklyVenueTraffic(),
     ],
   },
@@ -118,13 +129,18 @@ export const WEEKENDS = [
     start: '2026-10-01',
     events: [
       { name: 'Afternoon baseline', peak: 14, val: 550, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES },
-      // October's First Friday is the "Haunted Holler" themed edition, 3-9pm.
-      { name: 'First Friday Live: Haunted Holler', peak: 19, val: 4700, sigma: 1.3, location: LOCATIONS.SQUARE, chartLabel: 'First Friday' },
+      { name: 'First Friday Live', peak: 19, val: 4700, sigma: 1.3, location: LOCATIONS.SQUARE, chartLabel: 'First Friday' },
+      // Benton County Fair's closing weekend (Fair Week runs Sep 28-Oct 3,
+      // more livestock/exhibit-hall focused than opening weekend) - same
+      // Friday evening as First Friday downtown, different venue.
+      { name: 'Benton County Fair (Friday, closing weekend)', peak: 19, val: 1200, sigma: 1.5, location: LOCATIONS.FAIRGROUNDS },
       { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
       { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
       // Square 2 Square bike ride, fall direction Fayetteville -> Bentonville,
       // Sat 10/3 - riders trickle into the Square finish through late morning.
       { name: 'Square 2 Square finish', peak: 35, val: 300, sigma: 2, location: LOCATIONS.SQUARE, chartLabel: 'Square 2 Square' },
+      // Benton County Fair's last day, Sat 10/3.
+      { name: 'Benton County Fair (closing day)', peak: 42, val: 1800, sigma: 2, location: LOCATIONS.FAIRGROUNDS, chartLabel: 'Fair closing day' },
       { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
       ...weeklyVenueTraffic(),
     ],
@@ -136,6 +152,9 @@ export const WEEKENDS = [
     events: [
       // Movie Nights on the Square, Thu 10/8 - "The Lorax".
       { name: 'Movie Nights on the Square: The Lorax', peak: 6, val: 350, sigma: 1.3, location: LOCATIONS.SQUARE, chartLabel: 'Movie Nights' },
+      // Chance the Rapper at the Momentary Green, same Thursday evening -
+      // gates 5:30pm, capacity ~4,000-5,000, likely near sellout for a headliner.
+      { name: 'Chance the Rapper at the Momentary', peak: 8, val: 4500, sigma: 1.3, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Chance the Rapper' },
       { name: 'Afternoon baseline', peak: 14, val: 550, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES },
       { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
       { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
@@ -154,6 +173,10 @@ export const WEEKENDS = [
       { name: 'Bentonville Tigers vs Fayetteville', peak: 20, val: 6000, sigma: 1.5, location: LOCATIONS.TIGER_STADIUM, chartLabel: 'Tigers vs Fayetteville' },
       { name: 'Crystal Bridges Saturday', peak: 37, val: 850, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
       { name: 'Farmers Market', peak: 34, val: 3200, sigma: 1.8, location: LOCATIONS.SQUARE, chartLabel: 'Farmers Market' },
+      // Big Sugar Gravel, Sat 10/17 - starts and finishes at the Momentary,
+      // ~2,800 riders (2025 figure, likely similar for 2026), plus the
+      // "Gravel Rave" evening festival after - modeled as an evening peak.
+      { name: 'Big Sugar Gravel', peak: 42, val: 2800, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES, chartLabel: 'Big Sugar Gravel' },
       { name: 'Crystal Bridges Sunday', peak: 61, val: 700, sigma: 2.5, location: LOCATIONS.CRYSTAL_BRIDGES },
       ...weeklyVenueTraffic(),
     ],

@@ -69,7 +69,7 @@ export default function Navbar() {
               bvento
             </span>
             <span className="text-[10px] uppercase tracking-[0.18em] mt-0.5" style={{ color: 'var(--ink-soft)' }}>
-              {isEventHome ? 'Bentonville foot traffic' : 'bike trading'}
+              {isEventHome ? 'Bentonville surge forecast' : 'bike trading'}
             </span>
           </div>
         </Link>

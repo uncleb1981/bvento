@@ -164,7 +164,7 @@ export default function WeekendChart({ events, weekendLabel }) {
   const buckets = buildBuckets(events);
   const peakValue = buckets.find((b) => b.mark === 'peak')?.value ?? 0;
   const secondary = buckets.filter((b) => b.mark && b.mark !== 'peak').map((b) => b.mark).join(' and ');
-  const ariaLabel = `Area chart of estimated foot traffic in downtown Bentonville, ${weekendLabel}, peaking at about ${peakValue.toLocaleString()} people ${hourRangeLabel(peakHourIndex(events))}${secondary ? `, with smaller peaks for ${secondary}` : ''}.`;
+  const ariaLabel = `Area chart of estimated foot traffic in Bentonville, ${weekendLabel}, peaking at about ${peakValue.toLocaleString()} people ${hourRangeLabel(peakHourIndex(events))}${secondary ? `, with smaller peaks for ${secondary}` : ''}.`;
 
   return <canvas ref={canvasRef} role="img" aria-label={ariaLabel} />;
 }
