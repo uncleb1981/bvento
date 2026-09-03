@@ -274,8 +274,12 @@ export function surgeEvents() {
       if (value <= MIN_SURGE_VALUE) continue;
       const driver = driverEventAt(weekend.events, location, peakIdx);
       if (!driver) continue;
+      const dayOffset = peakIdx < 12 ? 0 : peakIdx < 24 ? 1 : peakIdx < 48 ? 2 : 3;
+      const peakDate = new Date(weekend.start + 'T00:00:00');
+      peakDate.setDate(peakDate.getDate() + dayOffset);
       surges.push({
         sortKey: `${weekend.start}-${String(peakIdx).padStart(2, '0')}`,
+        dateISO: peakDate.toISOString().slice(0, 10),
         when: eventDateTimeLabel(weekend.start, peakIdx),
         // Multi-day draws (a race weekend, a festival) list guests arrive
         // and leave across more than one night - `bookingWindow` on the
@@ -290,6 +294,62 @@ export function surgeEvents() {
   }
   surges.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
   return surges;
+}
+
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Which day of the week our identified out-of-town surges tend to land on -
+// built entirely from our own event data, not a substitute for a real
+// day-of-week ADR breakdown (no market-data platform publishes one for any
+// market, let alone Bentonville specifically or downtown alone).
+export function surgesByDayOfWeek() {
+  const buckets = DAY_NAMES.map((day) => ({ day, total: 0, count: 0 }));
+  for (const s of surgeEvents()) {
+    const dow = new Date(s.dateISO + 'T00:00:00').getDay();
+    buckets[dow].total += s.value;
+    buckets[dow].count += 1;
+  }
+  return buckets.map((b) => ({ ...b, avg: b.count ? Math.round(b.total / b.count) : 0 }));
+}
+
+// Bentonville-wide ADR range from AirDNA/Rabbu/AirROI (see the benchmarks
+// section) - the one real, sourced number this estimate is anchored to.
+const CITYWIDE_ADR_LOW = 160;
+const CITYWIDE_ADR_HIGH = 208;
+
+// Modeled assumption, not sourced: downtown listings (walk to the Square,
+// Crystal Bridges, the Momentary) command a premium over the city-wide
+// average, which includes outlying/suburban listings. A common pattern in
+// short-term rental markets generally, but no platform publishes a
+// downtown-specific number for Bentonville to confirm the exact size of it.
+const DOWNTOWN_PREMIUM = 1.12;
+
+// Modeled assumption, not sourced: a typical weekday/weekend demand curve
+// used broadly across the STR industry (e.g. as defaults in dynamic-pricing
+// tools) - Fri/Sat highest, midweek lowest.
+const TYPICAL_WEEK_CURVE = { Sun: 0.90, Mon: 0.82, Tue: 0.82, Wed: 0.85, Thu: 0.90, Fri: 1.15, Sat: 1.15 };
+
+// Estimated downtown Bentonville ADR by day of week: the sourced city-wide
+// range's midpoint, adjusted by the downtown premium assumption, then
+// shaped by a typical weekday/weekend STR demand curve blended with how
+// much extra lift our OWN identified surges give each day (see
+// surgesByDayOfWeek). This is a modeled estimate built from real inputs,
+// not a number published anywhere - every input into it is labeled above.
+export function estimatedDailyRateByDayOfWeek() {
+  const citywideMid = (CITYWIDE_ADR_LOW + CITYWIDE_ADR_HIGH) / 2;
+  const downtownBase = citywideMid * DOWNTOWN_PREMIUM;
+  const surgeDays = surgesByDayOfWeek();
+  const maxSurgeAvg = Math.max(...surgeDays.map((d) => d.avg), 1);
+
+  return surgeDays.map((d) => {
+    const surgeBoost = (d.avg / maxSurgeAvg) * 0.15;
+    const multiplier = TYPICAL_WEEK_CURVE[d.day] + surgeBoost;
+    return {
+      day: d.day,
+      rate: Math.round((downtownBase * multiplier) / 5) * 5,
+      surgeCount: d.count,
+    };
+  });
 }
 
 export function peakHourIndex(events) {

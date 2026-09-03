@@ -1,5 +1,6 @@
 import SurgeChart from './SurgeChart';
-import { surgeEvents } from './footTrafficModel';
+import DayOfWeekChart from './DayOfWeekChart';
+import { surgeEvents, estimatedDailyRateByDayOfWeek } from './footTrafficModel';
 
 export const metadata = {
   title: 'Bentonville Rate Radar — bvento',
@@ -9,6 +10,7 @@ export const metadata = {
 
 export default function HomePage() {
   const surges = surgeEvents();
+  const dayOfWeek = estimatedDailyRateByDayOfWeek();
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16">
@@ -21,18 +23,18 @@ export default function HomePage() {
         your rates before the surge hits.
       </p>
 
-      <ul className="text-sm leading-relaxed max-w-xl mb-6 space-y-2">
+      <ul className="text-sm max-w-xl mb-6 space-y-2">
         <li className="flex gap-2" style={{ color: 'var(--ink-soft)' }}>
           <span style={{ color: 'var(--accent)' }}>—</span>
-          <span>Exact dates when out-of-town demand spikes — Zedd, Chance the Rapper, Big Sugar Gravel, First Friday, and more</span>
+          <span>Exact dates when out-of-town demand spikes</span>
         </li>
         <li className="flex gap-2" style={{ color: 'var(--ink-soft)' }}>
           <span style={{ color: 'var(--accent)' }}>—</span>
-          <span>Real multi-night booking windows, not just a single peak hour — know exactly how many nights to raise your minimum stay</span>
+          <span>Estimated downtown rate for every day of the week</span>
         </li>
         <li className="flex gap-2" style={{ color: 'var(--ink-soft)' }}>
           <span style={{ color: 'var(--accent)' }}>—</span>
-          <span>Market rate and occupancy benchmarks, so you know if you're leaving money on the table even on a normal weekend</span>
+          <span>Market rate &amp; occupancy benchmarks for Bentonville</span>
         </li>
       </ul>
 
@@ -69,6 +71,27 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <div
+          className="rounded-2xl p-3"
+          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+        >
+          <h2 className="font-medium px-1 pt-1" style={{ color: 'var(--ink)' }}>
+            Estimated downtown rate by day of week
+          </h2>
+          <p className="text-xs px-1 pb-3" style={{ color: 'var(--ink-soft)' }}>
+            Modeled estimate, not sourced data: the citywide ADR range's midpoint (~$184),
+            adjusted for an assumed downtown location premium, then shaped by a typical
+            weekday/weekend demand curve blended with our own {surges.length} identified
+            surges. No platform publishes a real downtown-specific or day-of-week figure for
+            Bentonville to check this against.
+          </p>
+          <div style={{ height: 240, position: 'relative' }}>
+            <DayOfWeekChart days={dayOfWeek} />
           </div>
         </div>
       </section>
