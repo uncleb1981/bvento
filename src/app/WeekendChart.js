@@ -31,7 +31,10 @@ function bucketIndexForHour(hourIdx) {
 }
 
 function drivingEventName(events, bucket) {
-  const candidates = events.filter((e) => e.peak >= bucket.start && e.peak <= bucket.end);
+  // Local-only events (tagged in footTrafficModel.js) are excluded from the
+  // surge total, so they shouldn't be able to claim a chart label either -
+  // otherwise a label could point at a bump that no longer exists in the line.
+  const candidates = events.filter((e) => !e.local && e.peak >= bucket.start && e.peak <= bucket.end);
   if (candidates.length === 0) return null;
   const top = candidates.reduce((best, e) => (e.val > best.val ? e : best), candidates[0]);
   return top.chartLabel || top.name;
@@ -49,7 +52,7 @@ function buildBuckets(events) {
   buckets[peakIdx] = { ...buckets[peakIdx], mark: 'peak', label2: drivingEventName(events, buckets[peakIdx]) };
 
   for (const e of events) {
-    if (!e.chartLabel) continue;
+    if (!e.chartLabel || e.local) continue;
     const bi = bucketIndexForHour(e.peak);
     if (bi >= 0 && bi !== peakIdx && !buckets[bi].mark) {
       buckets[bi] = { ...buckets[bi], mark: e.chartLabel };
