@@ -5,7 +5,7 @@ import { WEEKENDS } from './footTrafficModel';
 export const metadata = {
   title: 'Bentonville Crowd Surge Forecast — bvento',
   description:
-    'Predictive pedestrian analytics for the Walmart vendor ecosystem — data-driven foot traffic forecasts across Bentonville’s key commercial zones, built for CPG brands timing product activations and launches around corporate commuter surges.',
+    'Know which Bentonville weekends to raise your nightly rate. A data-driven crowd surge forecast for short-term rental hosts and boutique hotels, built from real event data on First Friday, Farmers Market, Bentonville Tigers football, Momentary concerts, and more.',
 };
 
 export default function HomePage() {
@@ -16,21 +16,21 @@ export default function HomePage() {
       </h1>
 
       <p className="text-sm leading-relaxed max-w-xl mb-3" style={{ color: 'var(--ink-soft)' }}>
-        Predictive pedestrian analytics for the Walmart vendor ecosystem.
+        Know when to raise your rates — before the surge hits.
       </p>
 
       <ul className="text-sm leading-relaxed max-w-xl mb-6 space-y-2">
         <li className="flex gap-2" style={{ color: 'var(--ink-soft)' }}>
           <span style={{ color: 'var(--accent)' }}>—</span>
-          <span>Data-driven foot traffic forecasts across Bentonville's key commercial zones</span>
+          <span>Data-driven crowd forecasts for every major weekend in Bentonville</span>
         </li>
         <li className="flex gap-2" style={{ color: 'var(--ink-soft)' }}>
           <span style={{ color: 'var(--accent)' }}>—</span>
-          <span>Time product activations and experiential marketing to the moments that matter</span>
+          <span>See exactly which nights are worth premium pricing, weeks in advance</span>
         </li>
         <li className="flex gap-2" style={{ color: 'var(--ink-soft)' }}>
           <span style={{ color: 'var(--accent)' }}>—</span>
-          <span>Plan high-impact launches around corporate commuter surges</span>
+          <span>Never get caught underpriced during First Friday, a football rivalry, or a sold-out Momentary show</span>
         </li>
       </ul>
 
@@ -54,8 +54,8 @@ export default function HomePage() {
       ))}
 
       <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>
-        Want a foot traffic forecast for your own event, campaign, or business? This is the
-        first Northwest Arkansas forecast from bvento — more coming soon.
+        Run a short-term rental or boutique hotel in Northwest Arkansas? This is the first
+        surge forecast from bvento — more markets coming soon.
       </p>
 
       <p className="text-[11px] mt-6 pt-4" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>
