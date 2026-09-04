@@ -352,6 +352,27 @@ export function estimatedDailyRateByDayOfWeek() {
   });
 }
 
+// Every identified surge, with a suggested nightly rate attached: that
+// day-of-week's baseline estimate (see estimatedDailyRateByDayOfWeek),
+// scaled up or down by how this specific surge compares to the AVERAGE
+// surge for that same day of week - e.g. Big Sugar Gravel is a bigger
+// Saturday draw than Noon2Moon, so it gets scaled above the Saturday
+// baseline while Noon2Moon scales below it. Built entirely from numbers
+// already on this page; not an independently sourced price recommendation.
+export function surgesWithSuggestedRate() {
+  const rateByDay = Object.fromEntries(estimatedDailyRateByDayOfWeek().map((d) => [d.day, d.rate]));
+  const avgByDay = Object.fromEntries(surgesByDayOfWeek().map((d) => [d.day, d.avg]));
+
+  return surgeEvents().map((s) => {
+    const dayName = DAY_NAMES[new Date(s.dateISO + 'T00:00:00').getDay()];
+    const baseline = rateByDay[dayName];
+    const dayAvg = avgByDay[dayName] || s.value;
+    const ratio = s.value / dayAvg;
+    const suggestedRate = Math.round((baseline * ratio) / 5) * 5;
+    return { ...s, suggestedRate };
+  });
+}
+
 export function peakHourIndex(events) {
   const totals = hourlyTotal(events);
   return totals.indexOf(Math.max(...totals));
