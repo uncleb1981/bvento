@@ -60,7 +60,7 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-40 border-b" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}>
-      <div className={`max-w-5xl mx-auto px-4 py-4 flex items-center gap-3${isEventHome ? ' justify-between' : ''}`}>
+      <div className={`max-w-5xl mx-auto px-4 py-4 flex items-center gap-3${isEventHome ? ' flex-wrap justify-between' : ''}`}>
         <Link href="/" className="flex-shrink-0 mr-1">
           <div className="flex flex-col leading-none">
             <span
@@ -76,7 +76,7 @@ export default function Navbar() {
         </Link>
 
         {isEventHome && (
-          <div className="flex-shrink-0">
+          <div className="w-full sm:w-auto flex-shrink-0">
             <NewsletterSignup />
           </div>
         )}

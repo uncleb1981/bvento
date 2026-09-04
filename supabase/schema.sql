@@ -346,6 +346,21 @@ alter table feedback enable row level security;
 
 create policy "anyone can submit feedback" on feedback for insert with check (true);
 
+-- ── Newsletter signup (2026-09-04) ──────────────────────────────────────────
+-- Homepage "surge alerts" signup form. Standalone table, no relation to the
+-- marketplace tables above. Public can insert their own email; nobody but
+-- the project owner (via the dashboard, service role, bypasses RLS) can
+-- read the list back.
+create table if not exists newsletter_subscribers (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  created_at timestamptz not null default now()
+);
+
+alter table newsletter_subscribers enable row level security;
+
+create policy "anyone can subscribe" on newsletter_subscribers for insert with check (true);
+
 -- ── Decline notifications for proposers (2026-07-24) ────────────────────────
 -- No new RLS policy needed — the existing "recipient can update proposal
 -- status" policy already lets either participant (from_user_id or
