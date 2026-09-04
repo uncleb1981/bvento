@@ -1,6 +1,8 @@
 import SurgeChart from './SurgeChart';
 import DayOfWeekChart from './DayOfWeekChart';
-import { surgesWithSuggestedRate, estimatedRateByDayOfWeekBySize, ratesByBedroomCount } from './footTrafficModel';
+import PlatformBenchmarksTable from './PlatformBenchmarksTable';
+import GrowthChart from './GrowthChart';
+import { surgesWithSuggestedRate, estimatedRateByDayOfWeekBySize, ratesByBedroomCount, platformRatesByBedroomCount, estimatedRateByMonthBySize, populationHistory, strListingHistory } from './footTrafficModel';
 
 export const metadata = {
   title: 'Bentonville Host Pricing Toolkit — bvento',
@@ -18,6 +20,10 @@ export default function HomePage() {
   const surges = surgesWithSuggestedRate();
   const byBedroom = estimatedRateByDayOfWeekBySize();
   const bedroomRates = ratesByBedroomCount();
+  const platformBySize = platformRatesByBedroomCount();
+  const monthlyRates = estimatedRateByMonthBySize();
+  const population = populationHistory();
+  const strListings = strListingHistory();
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16">
@@ -107,6 +113,38 @@ export default function HomePage() {
           <div style={{ height: 260, position: 'relative' }}>
             <DayOfWeekChart studio={byBedroom.studio} fourBedroom={byBedroom.fourBedroom} />
           </div>
+
+          <p className="text-[11px] uppercase tracking-wide px-1 pt-5" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>
+            By month
+          </p>
+          <p className="text-[10px] px-1 pt-1 pb-2" style={{ color: 'var(--ink-soft)' }}>
+            Modeled seasonal curve, not sourced per-month data. Rabbu publishes only two real
+            anchors for Bentonville - July as the peak month (~$3,198 avg monthly revenue per
+            listing) and a winter low (~$1,092) - so this is a smooth curve fit to that ~2.9x
+            swing, not independently sourced month by month.
+          </p>
+          <div className="px-1">
+            <div className="flex items-center justify-between py-1.5">
+              <span className="text-[11px]" style={{ color: 'var(--ink-soft)' }}></span>
+              <span className="text-[11px] flex gap-6" style={{ color: 'var(--ink-soft)' }}>
+                <span className="w-12 text-right">Studio</span>
+                <span className="w-12 text-right">4 BR</span>
+              </span>
+            </div>
+            {monthlyRates.map((m, i) => (
+              <div
+                key={m.month}
+                className="flex items-center justify-between py-2"
+                style={i < monthlyRates.length - 1 ? { borderBottom: '1px solid var(--border)' } : undefined}
+              >
+                <span className="text-sm" style={{ color: 'var(--ink)' }}>{m.month}</span>
+                <span className="text-sm font-medium flex gap-6" style={{ color: 'var(--ink)' }}>
+                  <span className="w-12 text-right">${m.studio}</span>
+                  <span className="w-12 text-right">${m.fourBedroom}</span>
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -145,57 +183,7 @@ export default function HomePage() {
             source we could find.
           </p>
 
-          <p className="text-[11px] uppercase tracking-wide px-1 pt-5" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>
-            By platform
-          </p>
-          <p className="text-[10px] px-1 pt-1 pb-2" style={{ color: 'var(--ink-soft)' }}>
-            Blended across every unit size (unlike the table above) - each platform's own
-            reported Bentonville-wide figure.
-          </p>
-          <div className="overflow-x-auto px-1">
-            <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th className="text-left font-medium pb-2" style={{ color: 'var(--ink-soft)' }}></th>
-                  <th className="text-right font-medium pb-2" style={{ color: 'var(--ink)' }}>AirDNA</th>
-                  <th className="text-right font-medium pb-2" style={{ color: 'var(--ink)' }}>Rabbu</th>
-                  <th className="text-right font-medium pb-2" style={{ color: 'var(--ink)' }}>AirROI</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style={{ borderTop: '1px solid var(--border)' }}>
-                  <td className="py-2" style={{ color: 'var(--ink-soft)' }}>Avg. daily rate</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink)' }}>$208</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink)' }}>$160</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink-soft)' }}>—</td>
-                </tr>
-                <tr style={{ borderTop: '1px solid var(--border)' }}>
-                  <td className="py-2" style={{ color: 'var(--ink-soft)' }}>Occupancy <span className="text-[10px]">(% of nights booked)</span></td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink)' }}>56%</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink-soft)' }}>—</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink)' }}>43%</td>
-                </tr>
-                <tr style={{ borderTop: '1px solid var(--border)' }}>
-                  <td className="py-2" style={{ color: 'var(--ink-soft)' }}>RevPAR <span className="text-[10px]">(rate × occupancy)</span></td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink)' }}>$111</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink-soft)' }}>—</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink-soft)' }}>—</td>
-                </tr>
-                <tr style={{ borderTop: '1px solid var(--border)' }}>
-                  <td className="py-2" style={{ color: 'var(--ink-soft)' }}>Active listings <span className="text-[10px]">(total tracked)</span></td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink)' }}>~1,160</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink-soft)' }}>—</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink-soft)' }}>—</td>
-                </tr>
-                <tr style={{ borderTop: '1px solid var(--border)' }}>
-                  <td className="py-2" style={{ color: 'var(--ink-soft)' }}>Avg. annual revenue <span className="text-[10px]">(per listing)</span></td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink)' }}>~$25.2K</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink-soft)' }}>—</td>
-                  <td className="text-right py-2" style={{ color: 'var(--ink-soft)' }}>—</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <PlatformBenchmarksTable bySize={platformBySize} />
           <p className="text-xs px-1 pt-4 mt-1" style={{ color: 'var(--ink)', borderTop: '1px solid var(--border)' }}>
             Pricing below $160 on a normal weekend, or below $270 on a surge night? You may
             be leaving money on the table.
@@ -208,13 +196,42 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="mb-8">
+        <div
+          className="rounded-2xl p-3"
+          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+        >
+          <h2 className="font-medium px-1 pt-1" style={{ color: 'var(--ink)' }}>
+            Why Bentonville's STR market keeps growing
+          </h2>
+          <p className="text-xs px-1 pb-3" style={{ color: 'var(--ink-soft)' }}>
+            Population is real, multi-point Census data. STR listings is only two known dated
+            points - Bentonville has never required STR registration, so no one has tracked a
+            count in between; the dashed line just connects them, it isn't a known trend.
+          </p>
+          <div style={{ height: 280, position: 'relative' }}>
+            <GrowthChart population={population} strListings={strListings} />
+          </div>
+          <p className="text-[10px] px-1 pt-3 mt-1" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>
+            Population: US Census (2000, 2010, 2020) and Census/ACS annual estimates
+            (2021–2023). STR listings: 484 total listed over a trailing 12 months as of Jan
+            2021 (Bentonville city planning staff, reported by the NWA Democrat-Gazette,
+            Mar 10 2021) and ~1,160 active listings today (AirDNA, 2026) - the two counting
+            methods likely aren't perfectly consistent with each other, so treat this as
+            directional growth evidence, not a precise trend.
+          </p>
+        </div>
+      </section>
+
       <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>
-        List on Airbnb or VRBO in Northwest Arkansas? This is the first surge forecast from
+        List on Airbnb or VRBO in Northwest Arkansas? This is the first pricing toolkit from
         bvento — more markets coming soon.
       </p>
 
       <p className="text-[11px] mt-6 pt-4" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>
-        A foot traffic planning estimate, not a measured count.
+        Surge dates, suggested premiums, baseline rates, and market benchmarks are all
+        modeled guidance built from public event and platform data — not a guarantee of
+        bookings, revenue, or any individual listing's performance.
       </p>
     </div>
   );

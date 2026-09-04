@@ -358,6 +358,60 @@ export function ratesByBedroomCount() {
   ];
 }
 
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// Modeled seasonal curve, NOT sourced per-month data. Rabbu publishes only
+// two real anchor points for Bentonville: July as the peak month (~$3,198
+// avg monthly revenue/listing) and a winter low (~$1,092, roughly
+// February), a ~2.9x swing, with "peak season" spanning May-October
+// generally. A single smooth cosine curve peaking in July is fit to
+// approximate that real peak:trough ratio - only July and the winter low
+// are independently grounded in anything published; every other month is
+// interpolation through that curve's shape, not independently sourced.
+// Revenue (which bundles occupancy) is used as a proxy for how much rate
+// itself likely swings seasonally, since no source breaks out a
+// month-by-month ADR figure on its own.
+const SEASONAL_PEAK_MONTH_INDEX = 6; // July
+const SEASONAL_AMPLITUDE = 0.567; // fit to the real ~2.9x July:February revenue ratio
+
+export function estimatedRateByMonthBySize() {
+  const studioBase = STUDIO_ADR * DOWNTOWN_PREMIUM;
+  const fourBRBase = FOUR_BR_ADR * DOWNTOWN_PREMIUM;
+
+  return MONTH_NAMES.map((month, i) => {
+    const multiplier = 1 + SEASONAL_AMPLITUDE * Math.cos((2 * Math.PI * (i - SEASONAL_PEAK_MONTH_INDEX)) / 12);
+    return {
+      month,
+      studio: Math.round((studioBase * multiplier) / 5) * 5,
+      fourBedroom: Math.round((fourBRBase * multiplier) / 5) * 5,
+    };
+  });
+}
+
+// Rabbu and AirDNA's own BLENDED (all-sizes) ADR figures - the anchors used
+// to scale AirDNA into a by-size estimate below, since AirDNA doesn't
+// publish a size breakdown of its own.
+const RABBU_BLENDED_ADR = 160;
+const AIRDNA_BLENDED_ADR = 208;
+
+// Per-platform ADR by unit size, for the "by platform" table's size filter.
+// Rabbu's values are the real (studio/4BR/5BR) or interpolated (1-3BR)
+// figures from ratesByBedroomCount. AirDNA has never published a size
+// breakdown at all, so every AirDNA value here is MODELED: its blended
+// $208 scaled by Rabbu's own ratio of that size to Rabbu's blended $160 -
+// e.g. if Rabbu's 4BR runs 46% above Rabbu's own blended rate, AirDNA's
+// 4BR estimate scales AirDNA's blended rate up by that same 46%. AirROI
+// has no ADR figure at all (blended or by size) to scale from, so it
+// stays unavailable in every row.
+export function platformRatesByBedroomCount() {
+  return ratesByBedroomCount().map((b) => ({
+    size: b.size,
+    rabbu: b.rate,
+    rabbuSourced: b.sourced,
+    airdna: Math.round(AIRDNA_BLENDED_ADR * (b.rate / RABBU_BLENDED_ADR)),
+  }));
+}
+
 // Same downtown-premium + day-of-week-curve + surge-blend shape as
 // estimatedDailyRateByDayOfWeek, applied to a given base ADR instead of the
 // citywide blended midpoint - used to build size-specific rate lines.
@@ -492,4 +546,39 @@ export function eventDateTimeLabel(startISO, i) {
   const endNum = endTime.slice(0, -1);
 
   return `${dateStr}, ${startNum}–${endNum}${endMeridiem}`;
+}
+
+// Bentonville population, US Census + Census/ACS-derived annual estimates.
+// 2000/2010/2020 are decennial Census counts (the most authoritative
+// points); 2021-2023 are annual estimates. A genuinely rich real series -
+// unlike the STR listing count below, which has only two known points.
+export function populationHistory() {
+  return [
+    { year: 2000, population: 20300 },
+    { year: 2010, population: 35190 },
+    { year: 2020, population: 54164 },
+    { year: 2021, population: 56932 },
+    { year: 2022, population: 57873 },
+    { year: 2023, population: 59471 },
+  ];
+}
+
+// Real, dated STR listing counts for Bentonville - but only two of them
+// exist anywhere we could find. Jan 2021 is from a Bentonville city
+// planning staff report presented to City Council (via NWA Democrat-
+// Gazette, Mar 10 2021): 484 total listings active at some point over the
+// trailing 12 months, out of 24,254 total housing units at the time. 2026
+// is AirDNA's current snapshot (~1,160). No source publishes a listing
+// count for any year in between - Bentonville has never required STR
+// registration, so there's no registry that would have tracked it, and
+// third-party platforms don't publish their own historical archives for
+// free. The methodology likely isn't perfectly consistent between the two
+// (city staff's "listed at some point in 12 months" vs AirDNA's "active"
+// definition), so treat this as directional growth evidence, not a
+// precise trend line.
+export function strListingHistory() {
+  return [
+    { year: 2021, listings: 484 },
+    { year: 2026, listings: 1160 },
+  ];
 }
