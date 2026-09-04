@@ -329,15 +329,40 @@ const DOWNTOWN_PREMIUM = 1.12;
 // tools) - Fri/Sat highest, midweek lowest.
 const TYPICAL_WEEK_CURVE = { Sun: 0.90, Mon: 0.82, Tue: 0.82, Wed: 0.85, Thu: 0.90, Fri: 1.15, Sat: 1.15 };
 
-// Estimated downtown Bentonville ADR by day of week: the sourced city-wide
-// range's midpoint, adjusted by the downtown premium assumption, then
-// shaped by a typical weekday/weekend STR demand curve blended with how
-// much extra lift our OWN identified surges give each day (see
-// surgesByDayOfWeek). This is a modeled estimate built from real inputs,
-// not a number published anywhere - every input into it is labeled above.
-export function estimatedDailyRateByDayOfWeek() {
-  const citywideMid = (CITYWIDE_ADR_LOW + CITYWIDE_ADR_HIGH) / 2;
-  const downtownBase = citywideMid * DOWNTOWN_PREMIUM;
+// Rabbu's published per-bedroom Bentonville ADR figures - studio and 4BR
+// are the two real reported numbers we could find; no source publishes a
+// 3-bedroom-specific figure (or 1BR/2BR), so 3BR here is linearly
+// interpolated between the studio and 4BR anchors rather than guessed
+// independently. 3-bedroom listings are also the single largest segment
+// of Bentonville's STR market (~34% of active listings, per Rabbu), which
+// is why it's the second line here rather than, say, 2BR.
+const STUDIO_ADR = 93;
+const FOUR_BR_ADR = 233;
+const FIVE_BR_ADR = 293;
+const THREE_BR_ADR = Math.round(STUDIO_ADR + ((FOUR_BR_ADR - STUDIO_ADR) / 4) * 3);
+const ONE_BR_ADR = Math.round(STUDIO_ADR + ((FOUR_BR_ADR - STUDIO_ADR) / 4) * 1);
+const TWO_BR_ADR = Math.round(STUDIO_ADR + ((FOUR_BR_ADR - STUDIO_ADR) / 4) * 2);
+
+// City-wide ADR by property size, for the market benchmarks table. Studio,
+// 4BR, and 5BR are Rabbu's published Bentonville figures; 1BR-3BR aren't
+// published by any source we could find, so they're linearly interpolated
+// between the studio and 4BR anchors.
+export function ratesByBedroomCount() {
+  return [
+    { size: 'Studio', rate: STUDIO_ADR, sourced: true },
+    { size: '1 Bedroom', rate: ONE_BR_ADR, sourced: false },
+    { size: '2 Bedroom', rate: TWO_BR_ADR, sourced: false },
+    { size: '3 Bedroom', rate: THREE_BR_ADR, sourced: false },
+    { size: '4 Bedroom', rate: FOUR_BR_ADR, sourced: true },
+    { size: '5 Bedroom', rate: FIVE_BR_ADR, sourced: true },
+  ];
+}
+
+// Same downtown-premium + day-of-week-curve + surge-blend shape as
+// estimatedDailyRateByDayOfWeek, applied to a given base ADR instead of the
+// citywide blended midpoint - used to build size-specific rate lines.
+function rateSeriesForBaseADR(baseADR) {
+  const downtownBase = baseADR * DOWNTOWN_PREMIUM;
   const surgeDays = surgesByDayOfWeek();
   const maxSurgeAvg = Math.max(...surgeDays.map((d) => d.avg), 1);
 
@@ -352,24 +377,73 @@ export function estimatedDailyRateByDayOfWeek() {
   });
 }
 
-// Every identified surge, with a suggested nightly rate attached: that
-// day-of-week's baseline estimate (see estimatedDailyRateByDayOfWeek),
-// scaled up or down by how this specific surge compares to the AVERAGE
-// surge for that same day of week - e.g. Big Sugar Gravel is a bigger
-// Saturday draw than Noon2Moon, so it gets scaled above the Saturday
-// baseline while Noon2Moon scales below it. Built entirely from numbers
-// already on this page; not an independently sourced price recommendation.
-export function surgesWithSuggestedRate() {
-  const rateByDay = Object.fromEntries(estimatedDailyRateByDayOfWeek().map((d) => [d.day, d.rate]));
-  const avgByDay = Object.fromEntries(surgesByDayOfWeek().map((d) => [d.day, d.avg]));
+// Estimated downtown Bentonville ADR by day of week, blended across all
+// property sizes: the sourced city-wide range's midpoint, adjusted by the
+// downtown premium assumption, then shaped by a typical weekday/weekend
+// STR demand curve blended with how much extra lift our OWN identified
+// surges give each day. This is a modeled estimate built from real inputs,
+// not a number published anywhere - every input into it is labeled above.
+// Kept as the reference baseline for surgesWithSuggestedRate() below; see
+// estimatedRateByDayOfWeekBySize() for the studio/3BR-specific lines shown
+// on the page.
+export function estimatedDailyRateByDayOfWeek() {
+  const citywideMid = (CITYWIDE_ADR_LOW + CITYWIDE_ADR_HIGH) / 2;
+  return rateSeriesForBaseADR(citywideMid);
+}
 
-  return surgeEvents().map((s) => {
+// Same day-of-week shape as estimatedDailyRateByDayOfWeek, but with two
+// separate lines anchored to Rabbu's studio and 4BR ADR figures instead of
+// the blended citywide midpoint - both are real published figures (not
+// interpolated), so a studio host and a 4-bedroom host each see a number
+// that actually resembles their listing, with no modeled-in-between step.
+export function estimatedRateByDayOfWeekBySize() {
+  return {
+    studio: rateSeriesForBaseADR(STUDIO_ADR),
+    fourBedroom: rateSeriesForBaseADR(FOUR_BR_ADR),
+  };
+}
+
+// Normal (non-surge) baseline rate by day of week - same downtown-premium
+// and weekday/weekend curve as the rest of this page, but WITHOUT any
+// surge blend, so it stays a stable "normal night" reference to measure
+// suggested surge premiums against (a surge should never suggest LESS
+// than a normal night, which a surge-blended baseline could produce).
+function normalRateByDay() {
+  const citywideMid = (CITYWIDE_ADR_LOW + CITYWIDE_ADR_HIGH) / 2;
+  const downtownBase = citywideMid * DOWNTOWN_PREMIUM;
+  const rates = {};
+  for (const day of DAY_NAMES) {
+    rates[day] = Math.round((downtownBase * TYPICAL_WEEK_CURVE[day]) / 5) * 5;
+  }
+  return rates;
+}
+
+// Modeled assumption, not sourced: the single biggest identified surge
+// (First Friday, ~4,700 people) gets up to this much of a suggested
+// premium over the normal baseline; smaller surges scale down from there
+// in proportion to their size. A commonly cited peak-event pricing range
+// in the STR/hospitality industry generally, not a Bentonville-specific
+// figure - no platform publishes an actual surge-pricing benchmark.
+const MAX_SURGE_PREMIUM_PCT = 60;
+
+// Every identified surge, with a suggested nightly rate and % premium
+// attached: the normal (non-surge) baseline for that day of week, scaled
+// up by how big this surge is relative to the single biggest surge of the
+// season - e.g. First Friday (the biggest) gets close to the full
+// MAX_SURGE_PREMIUM_PCT premium, Noon2Moon (the smallest) gets a modest
+// one. Built entirely from numbers already on this page; not an
+// independently sourced price recommendation.
+export function surgesWithSuggestedRate() {
+  const normalByDay = normalRateByDay();
+  const allSurges = surgeEvents();
+  const maxSurgeValue = Math.max(...allSurges.map((s) => s.value));
+
+  return allSurges.map((s) => {
     const dayName = DAY_NAMES[new Date(s.dateISO + 'T00:00:00').getDay()];
-    const baseline = rateByDay[dayName];
-    const dayAvg = avgByDay[dayName] || s.value;
-    const ratio = s.value / dayAvg;
-    const suggestedRate = Math.round((baseline * ratio) / 5) * 5;
-    return { ...s, suggestedRate };
+    const baseline = normalByDay[dayName];
+    const pctIncrease = Math.round((s.value / maxSurgeValue) * MAX_SURGE_PREMIUM_PCT);
+    const suggestedRate = Math.round((baseline * (1 + pctIncrease / 100)) / 5) * 5;
+    return { ...s, suggestedRate, pctIncrease };
   });
 }
 

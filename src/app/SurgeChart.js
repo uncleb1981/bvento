@@ -15,6 +15,26 @@ export default function SurgeChart({ surges }) {
     const maxValue = Math.max(...values);
     const labels = surges.map((s) => s.bookingWindow);
 
+    // Greedy word-wrap: split `text` into lines that each fit within
+    // maxWidth, so a long label wraps onto its own bar instead of reading
+    // wide enough to bleed into a neighboring bar's space.
+    function wrapText(ctx, text, maxWidth) {
+      const words = text.split(' ');
+      const lines = [];
+      let line = '';
+      for (const word of words) {
+        const candidate = line ? `${line} ${word}` : word;
+        if (ctx.measureText(candidate).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = candidate;
+        }
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
+
     const barLabelPlugin = {
       id: 'barLabels',
       afterDatasetsDraw(chart) {
@@ -24,32 +44,40 @@ export default function SurgeChart({ surges }) {
         ctx.font = '600 11px -apple-system, BlinkMacSystemFont, sans-serif';
         ctx.fillStyle = '#14171F';
 
+        // Each label wraps within roughly one bar-column's width, so it
+        // stays over its own bar instead of reading into the next one.
+        const columnWidth = meta.data.length > 1 ? meta.data[1].x - meta.data[0].x : chartArea.width;
+        const maxLabelWidth = columnWidth * 0.92;
+        const lineHeight = 13;
+
         // Real 2D collision detection: place labels left to right, and for
         // each one keep nudging it upward until its bounding box (with a
         // small margin) clears every label already placed. Handles both
         // same-height neighbors and bars of very different heights sitting
         // close together, which a same-row-only check can miss.
         const placed = [];
-        const textHeight = 12;
         meta.data.forEach((bar, i) => {
-          const text = surges[i].label;
-          const halfWidth = ctx.measureText(text).width / 2;
+          const lines = wrapText(ctx, surges[i].label, maxLabelWidth);
+          const halfWidth = Math.max(...lines.map((l) => ctx.measureText(l).width)) / 2;
+          const textHeight = lines.length * lineHeight;
           // Clamp so a label near either edge doesn't run off the canvas.
           const x = Math.min(Math.max(bar.x, chartArea.left + halfWidth), chartArea.right - halfWidth);
-          let y = bar.y - 8;
+          let bottom = bar.y - 8;
 
           for (let guard = 0; guard < 20; guard++) {
-            const box = { left: x - halfWidth - 3, right: x + halfWidth + 3, top: y - textHeight, bottom: y + 2 };
+            const box = { left: x - halfWidth - 3, right: x + halfWidth + 3, top: bottom - textHeight, bottom: bottom + 2 };
             const overlaps = placed.some(
               (p) => box.left < p.right && box.right > p.left && box.top < p.bottom && box.bottom > p.top
             );
             if (!overlaps) break;
-            y -= 14;
+            bottom -= 14;
           }
-          placed.push({ left: x - halfWidth - 3, right: x + halfWidth + 3, top: y - textHeight, bottom: y + 2 });
+          placed.push({ left: x - halfWidth - 3, right: x + halfWidth + 3, top: bottom - textHeight, bottom: bottom + 2 });
 
           ctx.textAlign = 'center';
-          ctx.fillText(text, x, y);
+          lines.forEach((l, li) => {
+            ctx.fillText(l, x, bottom - (lines.length - 1 - li) * lineHeight);
+          });
         });
         ctx.restore();
       },
@@ -72,7 +100,7 @@ export default function SurgeChart({ surges }) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 40 } },
+        layout: { padding: { top: 50 } },
         animation: false,
         plugins: {
           legend: { display: false },
