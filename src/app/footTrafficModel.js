@@ -523,8 +523,59 @@ export function surgesWithSuggestedRate() {
     const baseline = normalByDay[dayName];
     const pctIncrease = Math.round((s.value / maxSurgeValue) * MAX_SURGE_PREMIUM_PCT);
     const suggestedRate = Math.round((baseline * (1 + pctIncrease / 100)) / 5) * 5;
-    return { ...s, suggestedRate, pctIncrease };
+    const minStay = suggestedMinStayNights(s);
+    return { ...s, suggestedRate, pctIncrease, minStay };
   });
+}
+
+const MONTH_INDEX = Object.fromEntries(MONTH_NAMES.map((m, i) => [m, i]));
+
+// Parses a bookingWindow string ("Sep 25", "Sep 21–27", "Sep 30 – Oct 3")
+// into real Date objects. Single-date strings (no dash) return the same
+// date for start and end.
+function parseBookingWindowRange(bookingWindow) {
+  const parts = bookingWindow.split('–').map((p) => p.trim());
+  const leftMatch = parts[0].match(/^([A-Za-z]+)\s+(\d+)$/);
+  if (!leftMatch) return null;
+  const start = new Date(2026, MONTH_INDEX[leftMatch[1]], Number(leftMatch[2]));
+  if (parts.length === 1) return { start, end: start };
+  const rightMatch = parts[1].match(/^(?:([A-Za-z]+)\s+)?(\d+)$/);
+  if (!rightMatch) return null;
+  const endMonth = rightMatch[1] ? MONTH_INDEX[rightMatch[1]] : MONTH_INDEX[leftMatch[1]];
+  const end = new Date(2026, endMonth, Number(rightMatch[2]));
+  return { start, end };
+}
+
+// Not a data-derived number - no platform publishes a Bentonville minimum-
+// stay benchmark, and how many nights a listing "must" be booked depends
+// on a host's own risk tolerance. This applies one widely-used STR hosting
+// practice, tiered by the surge's real booking window (its actual date
+// span - a single night for a one-off show, or the full multi-day span for
+// something like a tournament week):
+//   - no Friday or Saturday anywhere in the window -> no suggested minimum
+//   - window includes a Friday/Saturday and spans 1-3 days (a single show,
+//     or a weekend-scale event) -> 2-night minimum, so a guest can't book
+//     just a slow night and leave the strong one empty
+//   - window includes a Friday/Saturday and spans 4+ days (a genuine
+//     multi-day draw, not just a weekend) -> 3-night minimum
+// Capped at 3 either way - almost no visitor books a full week around a
+// single local event, so requiring more than that on any one surge
+// typically loses more bookings than it protects.
+export function suggestedMinStayNights(surge) {
+  const range = parseBookingWindowRange(surge.bookingWindow);
+  if (!range) {
+    const dow = new Date(surge.dateISO + 'T00:00:00').getDay();
+    return dow === 5 || dow === 6 ? 2 : 1;
+  }
+  let windowDays = 0;
+  let hasWeekendNight = false;
+  for (const d = new Date(range.start); d <= range.end; d.setDate(d.getDate() + 1)) {
+    windowDays++;
+    const dow = d.getDay();
+    if (dow === 5 || dow === 6) hasWeekendNight = true;
+  }
+  if (!hasWeekendNight) return 1;
+  return windowDays >= 4 ? 3 : 2;
 }
 
 export function peakHourIndex(events) {

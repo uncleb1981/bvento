@@ -75,7 +75,8 @@ export default function HomePage() {
               Suggested rate premium
             </p>
             <p className="text-xs px-1 pb-2" style={{ color: 'var(--ink-soft)' }}>
-              How much more to charge above your normal baseline rate for each surge.
+              How much more to charge above your normal baseline rate for each surge, plus
+              whether to set a minimum-stay requirement.
             </p>
             {surges.map((s, i) => (
               <div
@@ -91,6 +92,9 @@ export default function HomePage() {
                   <div className="text-xs mt-0.5" style={{ color: 'var(--ink-soft)' }}>
                     ~{s.value.toLocaleString()} people
                   </div>
+                  <div className="text-xs mt-0.5" style={{ color: s.minStay > 1 ? 'var(--accent)' : 'var(--ink-soft)' }}>
+                    {s.minStay > 1 ? `Set a ${s.minStay}-night minimum` : 'No minimum needed'}
+                  </div>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <div className="text-lg font-medium" style={{ color: 'var(--accent)' }}>
@@ -100,6 +104,17 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+            <p className="text-[10px] px-1 pt-3 mt-1" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>
+              Minimum-stay guidance: no platform publishes a Bentonville-specific benchmark for
+              this, so it's a single general STR hosting practice, tiered by the surge's real
+              booking window - a 2-night minimum when the window (a single night for a one-off
+              show, or a multi-day span for something like a race weekend) includes a Friday or
+              Saturday, so a guest can't book just a slow night and leave an already-strong one
+              empty; bumped to 3 nights when that window runs 4+ days, since that's a genuine
+              multi-day draw rather than a single weekend. Capped at 3 either way - almost no
+              visitor books a full week around one local event, so requiring more on a single
+              surge typically loses more bookings than it protects.
+            </p>
           </div>
         </div>
       </section>
