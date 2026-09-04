@@ -112,13 +112,15 @@ export default function GrowthChart({ population, strListings }) {
         scales: {
           y: {
             position: 'left',
-            beginAtZero: true,
+            min: 40000,
+            max: 62000,
             ticks: { color: '#5B5F6B', font: { size: 10 }, callback: (v) => v.toLocaleString() },
             grid: { color: '#E4E0D4' },
           },
           y1: {
             position: 'right',
             beginAtZero: true,
+            max: 1600,
             ticks: { color: '#B3431E', font: { size: 10 }, callback: (v) => v.toLocaleString() },
             grid: { display: false },
           },

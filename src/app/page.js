@@ -1,5 +1,6 @@
 import SurgeChart from './SurgeChart';
 import DayOfWeekChart from './DayOfWeekChart';
+import MonthlyRateChart from './MonthlyRateChart';
 import PlatformBenchmarksTable from './PlatformBenchmarksTable';
 import GrowthChart from './GrowthChart';
 import { surgesWithSuggestedRate, estimatedRateByDayOfWeekBySize, ratesByBedroomCount, platformRatesByBedroomCount, estimatedRateByMonthBySize, populationHistory, strListingHistory } from './footTrafficModel';
@@ -61,6 +62,10 @@ export default function HomePage() {
           <p className="text-xs px-1 pb-3" style={{ color: 'var(--ink-soft)' }}>
             Every date below is a real driver of overnight guests booking a place to stay -
             not local foot traffic like the farmers market or a high school football game.
+            A few are massive regional draws in Rogers (NWA Championship, Bikes Blues &amp;
+            BBQ) close enough to spill into Bentonville lodging - marked "regional
+            spillover," those crowd sizes are our modeled estimate of that overflow, not
+            the events' full regional attendance.
           </p>
           <div style={{ height: 300, position: 'relative' }}>
             <SurgeChart surges={surges} />
@@ -123,27 +128,8 @@ export default function HomePage() {
             listing) and a winter low (~$1,092) - so this is a smooth curve fit to that ~2.9x
             swing, not independently sourced month by month.
           </p>
-          <div className="px-1">
-            <div className="flex items-center justify-between py-1.5">
-              <span className="text-[11px]" style={{ color: 'var(--ink-soft)' }}></span>
-              <span className="text-[11px] flex gap-6" style={{ color: 'var(--ink-soft)' }}>
-                <span className="w-12 text-right">Studio</span>
-                <span className="w-12 text-right">4 BR</span>
-              </span>
-            </div>
-            {monthlyRates.map((m, i) => (
-              <div
-                key={m.month}
-                className="flex items-center justify-between py-2"
-                style={i < monthlyRates.length - 1 ? { borderBottom: '1px solid var(--border)' } : undefined}
-              >
-                <span className="text-sm" style={{ color: 'var(--ink)' }}>{m.month}</span>
-                <span className="text-sm font-medium flex gap-6" style={{ color: 'var(--ink)' }}>
-                  <span className="w-12 text-right">${m.studio}</span>
-                  <span className="w-12 text-right">${m.fourBedroom}</span>
-                </span>
-              </div>
-            ))}
+          <div style={{ height: 260, position: 'relative' }}>
+            <MonthlyRateChart months={monthlyRates} />
           </div>
         </div>
       </section>
@@ -213,8 +199,8 @@ export default function HomePage() {
             <GrowthChart population={population} strListings={strListings} />
           </div>
           <p className="text-[10px] px-1 pt-3 mt-1" style={{ color: 'var(--ink-soft)', borderTop: '1px solid var(--border)' }}>
-            Population: US Census (2000, 2010, 2020) and Census/ACS annual estimates
-            (2021–2023). STR listings: 484 total listed over a trailing 12 months as of Jan
+            Population: US Census (2020) and Census/ACS annual estimates (2021–2023). STR
+            listings: 484 total listed over a trailing 12 months as of Jan
             2021 (Bentonville city planning staff, reported by the NWA Democrat-Gazette,
             Mar 10 2021) and ~1,160 active listings today (AirDNA, 2026) - the two counting
             methods likely aren't perfectly consistent with each other, so treat this as

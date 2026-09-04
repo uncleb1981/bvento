@@ -23,6 +23,13 @@ export const LOCATIONS = {
   COLER: 'Coler Mountain Bike Preserve',
   TIGER_STADIUM: 'Bentonville Tiger Stadium',
   FAIRGROUNDS: 'Benton County Fairgrounds',
+  // Not a Bentonville venue - Rogers, AR, next door (~10 min away). Used
+  // only for massive regional draws whose overflow plausibly spills into
+  // Bentonville lodging once Rogers' own capacity is exceeded. See the
+  // Bikes, Blues & BBQ and NWA Championship entries for the modeled
+  // spillover methodology - these are NOT the events' real regional
+  // attendance figures.
+  REGIONAL_ROGERS: 'Rogers (regional spillover)',
 };
 
 // Ambient downtown foot traffic with no specific driving event - counted
@@ -130,6 +137,15 @@ export const WEEKENDS = [
       // estimate of the opening weekend's share (typically the busiest days).
       { name: 'Benton County Fair (Friday)', peak: 19, val: 1800, sigma: 1.5, location: LOCATIONS.FAIRGROUNDS, chartLabel: 'Benton County Fair', local: true },
       { name: 'Benton County Fair (Saturday)', peak: 42, val: 2800, sigma: 2, location: LOCATIONS.FAIRGROUNDS, local: true },
+      // NWA Championship (LPGA), Pinnacle Country Club, Rogers - tournament
+      // week runs Sep 21-27, final round Sun 9/27. No attendance figure is
+      // published anywhere for this event (checked extensively); this is a
+      // ROUGH estimate based on general LPGA Tour attendance norms for a
+      // well-supported stop (record-setting community-event turnout has
+      // been reported, though not the tournament's own attendance), not a
+      // number sourced to this specific event. Not a Bentonville venue -
+      // included for its scale and Rogers' proximity to Bentonville.
+      { name: 'NWA Championship (LPGA), final round', peak: 63, val: 6000, sigma: 2.5, location: LOCATIONS.REGIONAL_ROGERS, chartLabel: 'NWA Championship', bookingWindow: 'Sep 21–27' },
       ...weeklyVenueTraffic(),
     ],
   },
@@ -140,6 +156,16 @@ export const WEEKENDS = [
     events: [
       { name: 'Afternoon baseline', peak: 14, val: 550, sigma: 3, location: LOCATIONS.CRYSTAL_BRIDGES },
       { name: 'First Friday Live', peak: 19, val: 4700, sigma: 1.3, location: LOCATIONS.SQUARE, chartLabel: 'First Friday' },
+      // Bikes, Blues & BBQ, Downtown Rogers, Sep 30-Oct 3 - the world's
+      // largest charity motorcycle rally, 300,000+ riders over 4 days
+      // (confirmed via the event's own site; some sources still say
+      // Fayetteville, its former home, but 2026 is explicitly Rogers). Not
+      // a Bentonville venue, and 300K is Rogers-wide attendance including
+      // huge numbers of single-day/local riders, not overnight visitors -
+      // this ~3,000 figure is a MODELED estimate of Bentonville-specific
+      // spillover (roughly 1% of total attendance), not a sourced number,
+      // for the Saturday peak (main bike-show day).
+      { name: 'Bikes, Blues & BBQ (Bentonville spillover est.)', peak: 37, val: 3000, sigma: 2.5, location: LOCATIONS.REGIONAL_ROGERS, chartLabel: 'Bikes, Blues & BBQ', bookingWindow: 'Sep 30 – Oct 3' },
       // Benton County Fair's closing weekend (Fair Week runs Sep 28-Oct 3,
       // more livestock/exhibit-hall focused than opening weekend) - same
       // Friday evening as First Friday downtown, different venue.
@@ -548,14 +574,13 @@ export function eventDateTimeLabel(startISO, i) {
   return `${dateStr}, ${startNum}–${endNum}${endMeridiem}`;
 }
 
-// Bentonville population, US Census + Census/ACS-derived annual estimates.
-// 2000/2010/2020 are decennial Census counts (the most authoritative
-// points); 2021-2023 are annual estimates. A genuinely rich real series -
-// unlike the STR listing count below, which has only two known points.
+// Bentonville population, US Census + Census/ACS-derived annual estimates,
+// starting 2020 to line up with the STR listing series below. 2020 is the
+// decennial Census count (the most authoritative point); 2021-2023 are
+// annual estimates. A genuinely rich real series - unlike the STR listing
+// count below, which has only two known points.
 export function populationHistory() {
   return [
-    { year: 2000, population: 20300 },
-    { year: 2010, population: 35190 },
     { year: 2020, population: 54164 },
     { year: 2021, population: 56932 },
     { year: 2022, population: 57873 },

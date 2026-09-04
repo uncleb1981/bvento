@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase';
 import { getNotificationCount } from '@/lib/store';
+import NewsletterSignup from './NewsletterSignup';
 
 export default function Navbar() {
   const router = useRouter();
@@ -59,9 +60,9 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-40 border-b" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}>
-      <div className={`max-w-5xl mx-auto px-4 py-4 flex items-center gap-3${isEventHome ? ' sm:justify-center' : ''}`}>
+      <div className={`max-w-5xl mx-auto px-4 py-4 flex items-center gap-3${isEventHome ? ' justify-between' : ''}`}>
         <Link href="/" className="flex-shrink-0 mr-1">
-          <div className={`flex flex-col leading-none${isEventHome ? ' sm:items-center' : ''}`}>
+          <div className="flex flex-col leading-none">
             <span
               className={isEventHome ? 'text-4xl tracking-tight font-medium' : 'font-serif italic text-4xl tracking-tight'}
               style={{ color: 'var(--ink)' }}
@@ -73,6 +74,12 @@ export default function Navbar() {
             </span>
           </div>
         </Link>
+
+        {isEventHome && (
+          <div className="flex-shrink-0">
+            <NewsletterSignup />
+          </div>
+        )}
 
         {!isEventHome && (
           <div className="hidden sm:flex items-center gap-1 ml-6">
